@@ -53,6 +53,6 @@ Each selected stop retains its place ID, map search, area/state, and a brief pla
 
 ### Simple destination picker
 
-The destination picker groups places into manually curated areas and circuits so users can identify the locations they want to visit. Choose a group, select destinations, set the starting time and duration, and add them to a day. You can reopen the picker and add places from another group to the same day; RoamPlan warns when several groups are combined but does not block your choice.
+The destination picker groups places into manually curated areas and circuits so users can identify the destinations they want to visit. Choose a group, check destinations in your intended visit order, set the starting time and duration, and add them to a day. You can reopen the picker and add places from another group to the same day; RoamPlan warns when groups are combined but won't block your choice.
 
-RoamPlan is a static GitHub Pages app and does **not** optimize routes, calculate live road distances, or automatically choose a best stop order. Stops added from one group follow that group's listed sequence; when groups are combined, review or rearrange the itinerary yourself and use Google Maps to check the actual roads and travel times. This keeps the site simple and free until routing services are needed at a later scale.
+RoamPlan is a static GitHub Pages app and does **not** optimize routes, calculate live road distances, or automatically choose a best stop order. The app adds stops in the order you check them. Review or rearrange your itinerary yourself, then use Google Maps to check actual roads and travel times. This keeps the site simple and free until routing services are needed at a later scale.
