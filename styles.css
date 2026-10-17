@@ -12,6 +12,12 @@
 .picker-controls label{display:block;font-size:9px;font-weight:800;letter-spacing:1px;color:#7c877b;margin:0 0 6px}
 .picker-controls input,.picker-controls select,.picker-search input{width:100%;border:1px solid #dfe5db;background:#fcfdfa;padding:10px 11px;border-radius:8px;color:var(--ink);outline:none;min-width:0}
 .picker-controls input:focus,.picker-controls select:focus,.picker-search input:focus{border-color:#7ea489;box-shadow:0 0 0 3px #e7f1e8}
+.picker-source-row{display:grid;grid-template-columns:minmax(0,1fr) minmax(220px,.8fr);gap:15px;align-items:end;padding:0 25px 14px;background:#fff}
+.picker-source-field{min-width:0}
+.picker-source-row label{display:block;font-size:9px;font-weight:800;letter-spacing:1px;color:#7c877b;margin:0 0 6px}
+.picker-source-row input{width:100%;border:1px solid #dfe5db;background:#fcfdfa;padding:10px 11px;border-radius:8px;color:var(--ink);outline:none;min-width:0}
+.picker-source-row input:focus{border-color:#7ea489;box-shadow:0 0 0 3px #e7f1e8}
+.picker-source-help{font-size:10px;line-height:1.55;color:#778274;margin:0 0 1px;max-width:390px}
 .picker-search-row{display:flex;align-items:center;gap:11px;padding:0 25px 13px;background:#fff}
 .picker-search{position:relative;display:flex;align-items:center;flex:1;min-width:0}
 .picker-search>span{position:absolute;left:12px;color:#788578;font-size:19px}
@@ -48,7 +54,7 @@
 .stop-card.done .stop-check{box-shadow:0 0 0 3px #e5f1e5}
 .stop-card.done .stop-title{color:#526d55}
 @media(max-width:900px){.picker-controls{grid-template-columns:repeat(2,minmax(0,1fr))}.picker-place-list{max-height:40vh}}
-@media(max-width:790px){.section-actions{justify-content:flex-start}.picker-head,.picker-controls,.picker-search-row,.picker-footer{padding-left:16px;padding-right:16px}.picker-place-list{padding-left:16px;padding-right:16px}.picker-head h2{font-size:20px}}
+@media(max-width:790px){.section-actions{justify-content:flex-start}.picker-head,.picker-controls,.picker-source-row,.picker-search-row,.picker-footer{padding-left:16px;padding-right:16px}.picker-source-row{grid-template-columns:1fr;gap:7px;padding-bottom:12px}.picker-place-list{padding-left:16px;padding-right:16px}.picker-head h2{font-size:20px}}
 @media(max-width:540px){.section-actions{width:100%;display:grid;grid-template-columns:1fr}.section-actions button{width:100%;padding:9px}.picker-dialog{max-height:calc(100vh - 14px);border-radius:13px}.picker-dialog-content{max-height:calc(100vh - 14px)}.picker-head{padding-top:17px;padding-bottom:14px}.picker-head h2{font-size:18px}.picker-controls{grid-template-columns:1fr 1fr;gap:9px;padding-top:12px;padding-bottom:10px}.picker-search-row{align-items:stretch;flex-direction:column;gap:7px}.picker-count{align-self:flex-start}.picker-place-list{max-height:37vh;min-height:120px}.picker-place{grid-template-columns:20px minmax(0,1fr);gap:9px;padding:10px}.picker-details-link{grid-column:2;justify-self:start;padding:0}.picker-footer{align-items:stretch;flex-direction:column;gap:10px;padding-top:12px;padding-bottom:12px}.picker-footer>div{width:100%}.picker-footer button{flex:1}.picker-footer>p{max-width:none}.stop-title-row{align-items:start}}
 
 /* Destination labels inside the itinerary's place picker */
