@@ -58,10 +58,10 @@ async function loadWikipedia(p){
 }
 if(!place){renderNotFound();}
 else{
- document.title=place.name+" — Coorg field guide | RoamPlan";
+ document.title=place.name+" — "+(place.state==="Kerala"?"Kerala border field guide":"Coorg field guide")+" | RoamPlan";
  $("crumbPlace").textContent=place.name;
  $("placeTitle").textContent=place.name;
- $("placeArea").textContent=place.group.toUpperCase()+" · KODAGU, KARNATAKA";
+ $("placeArea").textContent=place.group.toUpperCase()+" · "+(place.state==="Kerala"?"KANNUR, KERALA":"KODAGU, KARNATAKA");
  $("placeDek").textContent=place.why;
  $("placeTags").innerHTML='<span>'+esc(place.tag)+'</span><span>'+esc(place.crowd)+' (estimate)</span><span>◷ '+esc(place.duration)+'</span>';
  $("placeOverview").textContent=place.overview;
@@ -77,11 +77,11 @@ else{
  const official=$("officialSourceLink");
  if(place.officialUrl){official.href=place.officialUrl;official.hidden=false;}else{official.hidden=true;}
  $("quickTitle").textContent=place.name;
- $("quickLocation").textContent=place.city+", Kodagu, Karnataka";
+ $("quickLocation").textContent=place.city+", "+(place.district|| (place.state==="Kerala"?"Kannur":"Kodagu"))+", "+(place.state||"Karnataka");
  $("quickDuration").textContent=place.duration;
  $("quickType").textContent=place.tag;
  const near=(place.nearby||[]).map(get).filter(Boolean);
- $("detailNearby").innerHTML=near.length?near.map(card).join(""):'<div class="no-results"><p>No specific nearby match is curated yet. Return to the Coorg explorer to browse by area.</p><a class="text-link" href="destinations.html">Explore all Coorg areas →</a></div>';
+ $("detailNearby").innerHTML=near.length?near.map(card).join(""):'<div class="no-results"><p>No specific nearby match is curated yet. Return to the Coorg explorer to browse by area.</p><a class="text-link" href="destinations.html">Explore destination areas →</a></div>';
  loadWikipedia(place);
 }
 })();
