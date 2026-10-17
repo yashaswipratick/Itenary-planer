@@ -1,9 +1,10 @@
 (()=>{"use strict";
 const DB=window.ROAMPLANDATA;if(!DB)return;
 const $=id=>document.getElementById(id);
-const GROUP_ORDER=["Kushalnagar & Bylakuppe","Madikeri & Central Coorg","Galibeedu & countryside","Bhagamandala & Brahmagiri","Somwarpet & Pushpagiri","Kakkabe & Virajpet","Kutta & Nagarahole","Kerala Border Hills & Viewpoints","Kerala Border Waterfalls"];
+const GROUP_ORDER=["Kushalnagar & Bylakuppe","Suntikoppa & Coffee Country","Madikeri & Central Coorg","Galibeedu & countryside","Bhagamandala & Brahmagiri","Somwarpet & Pushpagiri","Kakkabe & Virajpet","Kutta & Nagarahole","Kerala Border Hills & Viewpoints","Kerala Border Waterfalls"];
 const GROUP_META={
  "Kushalnagar & Bylakuppe":{hint:"Tibetan culture, riverside forest and reservoirs",icon:"🌿"},
+ "Suntikoppa & Coffee Country":{hint:"Coffee walks and plantation experiences near the Mysore–Madikeri road",icon:"☕"},
  "Madikeri & Central Coorg":{hint:"Classic viewpoints, waterfalls, heritage and coffee",icon:"⛰"},
  "Galibeedu & countryside":{hint:"Quiet lanes and small local landscape stops",icon:"🌱"},
  "Bhagamandala & Brahmagiri":{hint:"Sacred river sites and high Western Ghats",icon:"🛕"},
