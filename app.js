@@ -21,7 +21,7 @@ function catalogPlaceForStop(stop){
  if(stop.placeId)return placeById(stop.placeId);
  const clean=s=>String(s||"").toLowerCase().replace(/[^a-z0-9]+/g," ").trim();
  const name=clean(stop.name);
- const aliases={"harangi dam":"harangi-dam","harangi reservoir":"harangi-dam","harangi reservoir kodagu":"harangi-dam"};
+ const aliases={"harangi dam":"harangi-dam","harangi reservoir":"harangi-dam","harangi reservoir kodagu":"harangi-dam","harangi backwaters":"harangi-dam","chelvara falls":"chelavara-falls","chelvara waterfall":"chelavara-falls"};
  if(aliases[name])return placeById(aliases[name]);
  return (catalog.places||[]).find(p=>clean(p.name)===name)||null;
 }
@@ -91,6 +91,8 @@ const starterSlotNames=new Set(["Breakfast / coffee","Travel to first stop","Mai
 const replaceableSightseeingSlots=new Set(["Main attraction","Hidden gem nearby","Explore at an easy pace","Offbeat stop","Sunset / scenic stop"]);
 const ROUTE_CIRCUITS=[
  {id:"virajpet-east-corridor",category:"Recommended from Virajpet base",title:"Virajpet → Dubare → Harangi Reservoir",direction:"Virajpet / Bittangala → Dubare → Harangi",defaultDuration:90,description:"A practical eastbound day from a Virajpet-area stay: visit Dubare first, then continue to Harangi Elephant Camp & Tree Park and the nearby Harangi Reservoir. Don't add Dubare a second time; check live road directions and activity timings before departure.",placeIds:["dubare-elephant-camp","harangi-elephant-camp-tree-park","harangi-dam"]},
+ {id:"kushalnagar-river-adventure",category:"East · Kushalnagar activities",title:"Kushalnagar River & Adventure Stops",direction:"Greenway / 7th Hosakote → Nisargadhama → Basavanahalli / Baichanahalli",defaultDuration:75,description:"A regional coffee, river and family-activity circuit around the Kushalnagar side. This is a curated grouping, not live road-time optimization; verify order and current attraction access in Maps.",placeIds:["greenway-coffee-island","kaveri-nisargadhama","coorg-hanging-bridge","coorg-adventure-park"]},
+ {id:"kaapi-nele-experience",category:"South-west · Ammathi / Bilugunda",title:"Kaapi Nele Plantation & Adventure Walk",direction:"Ammathi / Bilugunda",defaultDuration:120,description:"A booking-led guided plantation walk and nature-adventure experience. Confirm which activity/package you are booking and its meeting point before travelling.",placeIds:["kaapi-nele-adventure-trek"]},
  {id:"bylakuppe-nisargadhama",category:"East · Bylakuppe / Kushalnagar",title:"Golden Temple & Nisargadhama",direction:"Bylakuppe → Nisargadhama",defaultDuration:60,description:"A compact culture-and-river stop on the eastern approach. Harangi and Dubare are separate circuits to avoid adding opposite-side detours.",placeIds:["golden-temple","kaveri-nisargadhama"]},
  {id:"harangi-backwaters",category:"East · Harangi",title:"Harangi Reservoir & Elephant Camp",direction:"Harangi reservoir / backwaters",defaultDuration:60,description:"Keep the reservoir-side visit and adjacent tree park / elephant camp together. Do not add Golden Temple or Dubare to this day's route.",placeIds:["harangi-dam","harangi-elephant-camp-tree-park"]},
  {id:"dubare-camp",category:"East · Dubare",title:"Dubare Elephant Camp",direction:"Dubare / Kaveri river",defaultDuration:150,description:"Treat Dubare as its own scheduled visit because the camp activity and river access can take several hours.",placeIds:["dubare-elephant-camp"]},
@@ -106,6 +108,7 @@ const ROUTE_CIRCUITS=[
  {id:"somwarpet-pushpagiri",category:"North · Somwarpet",title:"Somwarpet & Pushpagiri nature route",direction:"Somwarpet → Pushpagiri foothills",defaultDuration:75,description:"A northern countryside route for the lake and waterfall side of Coorg. It needs a substantial half-day window from Madikeri.",placeIds:["honnamana-kere","mallalli-falls"]},
  {id:"kakkabe-countryside",category:"West / south-west · Kakkabe",title:"Kakkabe, Kabbe & Chelavara loop",direction:"Kakkabe → Kabbe Betta → Chelavara",defaultDuration:60,description:"Keeps the palace, hill viewpoint and forest waterfall in the same rural Kakkabe/Chelavara zone. Verify waterfall and estate-road access locally.",placeIds:["nalknad-palace","kabbe-betta-view","chelavara-falls"]},
  {id:"thadiyandamol-trek",category:"West / south-west · Full-day trek",title:"Thadiyandamol trek",direction:"Yevakapadi / Nalknad trailhead",defaultDuration:360,description:"A full-day mountain trek, not a quick sightseeing stop. Confirm booking, guide, check-post time and weather; keep the rest of the day free.",placeIds:["thadiyandamol-peak"]},
+ {id:"brahmagiri-sanctuary",category:"South · Kutta / Brahmagiri",title:"Brahmagiri Wildlife Sanctuary (verify entry)",direction:"Brahmagiri range / entry gate to be verified",defaultDuration:360,description:"A forest and wildlife outing that requires confirmation of the correct sanctuary entry point, current access permissions and any guide/permit requirements. The supplied Vellad / PIN 670571 details may not be the usual Kodagu-side entrance.",placeIds:["brahmagiri-wildlife-sanctuary"]},
  {id:"iruppu-falls",category:"South · Kutta",title:"Iruppu Falls",direction:"Kutta / Brahmagiri foothills",defaultDuration:120,description:"A forest waterfall outing far from central Madikeri. Plan this when staying on the southern Coorg side, rather than returning across the district.",placeIds:["iruppu-falls"]},
  {id:"nagarahole-safari",category:"South · Wildlife",title:"Nagarahole safari",direction:"Booked park gate / safari route",defaultDuration:180,description:"Build the day around a confirmed safari gate and time slot. It is a southern extension; don't combine it casually with central Coorg stops.",placeIds:["nagarahole-national-park"]},
  {id:"kerala-kalanki",category:"Kerala border · Kannur hills",title:"Kalanki — Queen of Hills",direction:"Ullikkal / Kalanki hill road",defaultDuration:60,description:"A separate Kannur-district, Kerala viewpoint. It is not inside Coorg and may require a long cross-border drive, depending on your stay.",placeIds:["kalanki-queen-of-hills"]},
@@ -152,13 +155,13 @@ function baseRegionForTrip(t){
 function routePriorityForTrip(route,t){
  const region=baseRegionForTrip(t);
  const order={
-  virajpet:["virajpet-east-corridor","kakkabe-countryside","thadiyandamol-trek","iruppu-falls","nagarahole-safari","dubare-camp","harangi-backwaters","chiklihole-reservoir","bylakuppe-nisargadhama"],
-  east:["bylakuppe-nisargadhama","harangi-backwaters","dubare-camp","chiklihole-reservoir","virajpet-east-corridor"],
+  virajpet:["virajpet-east-corridor","kaapi-nele-experience","kakkabe-countryside","thadiyandamol-trek","brahmagiri-sanctuary","iruppu-falls","nagarahole-safari","kushalnagar-river-adventure","dubare-camp","harangi-backwaters","chiklihole-reservoir","bylakuppe-nisargadhama"],
+  east:["kushalnagar-river-adventure","bylakuppe-nisargadhama","harangi-backwaters","dubare-camp","chiklihole-reservoir","virajpet-east-corridor"],
   madikeri:["madikeri-town","abbey-falls","mandalpatti","coffee-estate","kote-abbe","galibeedu-lake","bhagamandala-talakaveri"],
   somwarpet:["somwarpet-pushpagiri","nishani-motte-trek"],
   kakkabe:["kakkabe-countryside","thadiyandamol-trek","iruppu-falls"],
   west:["bhagamandala-talakaveri","nishani-motte-trek"],
-  south:["iruppu-falls","nagarahole-safari"],
+  south:["brahmagiri-sanctuary","iruppu-falls","nagarahole-safari"],
   kerala:["kerala-kalanki","kerala-areekamala","kerala-alakapuri","kerala-ezharakund"]
  }[region]||[];
  const i=order.indexOf(route.id);
@@ -237,7 +240,7 @@ function configurePickerForDay(){
 function pickerFilteredPlaces(){
  const q=$("pickerSearch").value.trim().toLowerCase(),route=currentPickerRoute();
  if(!route||!routeIsCompatibleWithSelectedDay(route))return [];
- return route.placeIds.map(id=>placeById(id)).filter(Boolean).filter(p=>!q||[p.name,p.city,p.group,p.tag,p.overview,p.why,p.state||"Karnataka"].join(" ").toLowerCase().includes(q));
+ return route.placeIds.map(id=>placeById(id)).filter(Boolean).filter(p=>!q||[p.name,...(p.aliases||[]),p.city,p.group,p.tag,p.overview,p.why,p.state||"Karnataka"].join(" ").toLowerCase().includes(q));
 }
 function updatePickerSelectionUI(){
  const count=pickedPlaceIds.size,route=currentPickerRoute(),ok=!!route&&routeIsCompatibleWithSelectedDay(route);
