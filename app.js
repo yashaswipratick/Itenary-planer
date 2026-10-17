@@ -21,7 +21,7 @@ function catalogPlaceForStop(stop){
  if(stop.placeId)return placeById(stop.placeId);
  const clean=s=>String(s||"").toLowerCase().replace(/[^a-z0-9]+/g," ").trim();
  const name=clean(stop.name);
- const aliases={"harangi dam":"harangi-dam","harangi reservoir":"harangi-dam","harangi reservoir kodagu":"harangi-dam","harangi backwaters":"harangi-dam","chelvara falls":"chelavara-falls","chelvara waterfall":"chelavara-falls"};
+ const aliases={"harangi dam":"harangi-dam","harangi reservoir":"harangi-dam","harangi reservoir kodagu":"harangi-dam","harangi backwaters":"harangi-dam","harangi backwater road herur":"harangi-dam","chelavara falls":"chelavara-falls","chelavara waterfall":"chelavara-falls","chelavara waterfalls":"chelavara-falls"};
  if(aliases[name])return placeById(aliases[name]);
  return (catalog.places||[]).find(p=>clean(p.name)===name)||null;
 }
