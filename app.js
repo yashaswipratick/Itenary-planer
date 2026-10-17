@@ -147,7 +147,9 @@ function updatePickerSelectionUI(){
  $("pickerSelectionCount").textContent=count+" selected";
  $("addSelectedPlaces").disabled=count===0||!ok;
  $("addSelectedPlaces").textContent=count?"＋ Add "+count+" selected place"+(count===1?"":"s"):"＋ Add selected places";
- if(route&&!ok)$("pickerHint").textContent="This day already contains places outside this circuit. Move them to another day or remove them before adding more stops.";
+ const selected=pickerDay();
+ if(!route&&selected&&selected.day.stops.some(s=>s.placeId))$("pickerHint").textContent="This day already contains places from more than one circuit. Remove the off-route places and add them to a different day before continuing.";
+ else if(route&&!ok)$("pickerHint").textContent="This day already contains places outside this circuit. Remove the off-route places from this day and add them to another day.";
  else $("pickerHint").textContent="This day stays on one circuit. Places are listed in the recommended route order; choose a different day for another direction. Existing places in this itinerary won't be duplicated.";
 }
 function renderPickerPlaces(){
