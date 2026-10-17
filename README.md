@@ -38,3 +38,7 @@ The **Explore places** link opens a separate destination library at `destination
 - Place detail pages include a locally written overview, suggested visit time, best-time guidance, practical access notes and related places.
 - Where a standalone Wikipedia article is available, the detail page requests the article's introductory extract from Wikipedia and links to the full article. If no dedicated article is available or Wikipedia cannot be reached, the page clearly shows a fallback note rather than inventing a Wikipedia summary.
 - Nearby pairings are curated regional suggestions, not real-time routing or distance estimates. Verify opening hours, permissions, road access, weather and safety locally.
+
+### Coorg and Kerala-border additions
+
+The destination catalogue also includes the Kabbe Betta View and Thadiyandamol hiking area in Kodagu, while Kalanki, Alakapuri Waterfalls, Areekamala Viewpoint and Ezharakund Waterfalls are kept in a separate **Beyond Coorg: Kerala border escapes** collection because they are in Kannur district, Kerala. Nalknad Palace is a single existing entry and is cross-linked with the nearby Kodagu hill sites. State and area filters distinguish Karnataka from Kerala; the border collection is not represented as part of Coorg itself. The suggested links are curated regional pairings, not live routing-distance calculations.
