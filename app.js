@@ -110,7 +110,12 @@ function updatePickerRouteSummary(){
  if(!selected){panel.innerHTML='<p class="route-empty">Select an itinerary day first.</p>';return;}
  const existing=(selected.day.stops||[]).filter(s=>s.placeId);
  if(!route){
-  panel.innerHTML='<div class="route-summary-empty"><span class="route-summary-icon">↗</span><div><b>Choose a route circuit</b><p>The picker will show only the stops that belong on that route, in suggested travel order. Farther areas stay in separate circuits.</p></div></div>';
+  const existingNames=existing.map(s=>s.name);
+  if(existing.length){
+   panel.innerHTML='<div class="route-conflict"><b>This day already contains stops from different route circuits</b><p>'+escapeHtml(existingNames.join(", "))+' cannot be matched to one circuit together. Remove the off-route stop(s) from this day and add them under a separate day and circuit.</p></div>';
+  }else{
+   panel.innerHTML='<div class="route-summary-empty"><span class="route-summary-icon">↗</span><div><b>Choose a route circuit</b><p>The picker will show only the stops that belong on that route, in suggested travel order. Farther areas stay in separate circuits.</p></div></div>';
+  }
   return;
  }
  const incompatible=existing.filter(s=>!route.placeIds.includes(s.placeId));
