@@ -91,7 +91,7 @@ function setVal(id,v){$(id).value=v??""}
 function toast(msg){const el=$("toast");el.textContent=msg;el.classList.add("show");clearTimeout(toastTimer);toastTimer=setTimeout(()=>el.classList.remove("show"),2400);}
 function progress(t){const all=t.days.flatMap(d=>d.stops);return{done:all.filter(s=>s.done).length,total:all.length,pct:all.length?Math.round(100*all.filter(s=>s.done).length/all.length):0};}
 function render(){const t=active();$("tripCount").textContent=trips.length;$("tripList").innerHTML=trips.map(x=>'<button class="trip-link '+(x.id===activeId?'active':'')+'" data-trip="'+x.id+'">⌁ &nbsp;'+escapeHtml(x.name||x.destination||"Untitled trip")+'</button>').join("");$("workspace").classList.toggle("hidden",!t);$("emptyState").classList.toggle("hidden",!!t);if(!t){$("pageTitle").textContent="Plan a trip worth remembering.";return;}
-const p=progress(t);$("crumb").textContent=t.name||"My itinerary";$("pageTitle").textContent=t.name||"Plan a trip worth remembering.";$("statDestination").textContent=t.destination||"Add destination";$("statDays").textContent=t.days.length+" "+(t.days.length===1?"day":"days");$("statVisited").textContent=p.done+" / "+p.total;$("statProgress").textContent=p.pct+"%";$("progressBar").style.width=p.pct+"%";setVal("tripName",t.name);setVal("destination",t.destination);setVal("origin",t.origin);setVal("startDate",t.startDate);setVal("dayCount",t.days.length);activeDay=Math.min(activeDay,t.days.length-1);$("dayTabs").innerHTML=t.days.map((d,i)=>'<button class="day-tab '+(i===activeDay?'active':'')+'" data-day="'+i+'">Day '+(i+1)+'</button>').join("");const day=t.days[activeDay];$("dayTitle").textContent="Day "+(activeDay+1);$("dayDate").textContent=formatDate(t.startDate,activeDay);const done=day.stops.filter(s=>s.done).length;$("dayProgress").textContent=done+" / "+day.stops.length+" done";const currentRoute=routeForDay(day);const routeLabel=$("dayRouteLabel");if(currentRoute){routeLabel.textContent="Route · "+currentRoute.title;routeLabel.classList.remove("hidden","route-warning");}else if(day.stops.some(s=>s.placeId)){routeLabel.textContent="Multiple groups · check route in Maps";routeLabel.classList.remove("hidden");routeLabel.classList.add("route-warning");}else{routeLabel.textContent="";routeLabel.classList.add("hidden");routeLabel.classList.remove("route-warning");}$("stopList").innerHTML=day.stops.length?day.stops.map((s,i)=>renderStop(s,i)).join(""):'<div class="empty"><h2>A day with possibilities.</h2><p>Add the first place, meal or activity to start planning.</p><button class="primary" data-add="destination">＋ Add a stop</button></div>'; }
+const p=progress(t);$("crumb").textContent=t.name||"My itinerary";$("pageTitle").textContent=t.name||"Plan a trip worth remembering.";$("statDestination").textContent=t.destination||"Add destination";$("statDays").textContent=t.days.length+" "+(t.days.length===1?"day":"days");$("statVisited").textContent=p.done+" / "+p.total;$("statProgress").textContent=p.pct+"%";$("progressBar").style.width=p.pct+"%";setVal("tripName",t.name);setVal("destination",t.destination);setVal("origin",t.origin);setVal("startDate",t.startDate);setVal("dayCount",t.days.length);activeDay=Math.min(activeDay,t.days.length-1);$("dayTabs").innerHTML=t.days.map((d,i)=>'<button class="day-tab '+(i===activeDay?'active':'')+'" data-day="'+i+'">Day '+(i+1)+'</button>').join("");const day=t.days[activeDay];$("dayTitle").textContent="Day "+(activeDay+1);$("dayDate").textContent=formatDate(t.startDate,activeDay);const done=day.stops.filter(s=>s.done).length;$("dayProgress").textContent=done+" / "+day.stops.length+" done";const carryable=day.stops.filter(s=>!s.done&&s.type!=="food"&&s.type!=="break"&&String(s.name||"").trim());const carryBtn=$("carryForwardBtn");if(carryable.length){carryBtn.classList.remove("hidden");carryBtn.textContent="↪ Carry "+carryable.length+" unvisited to "+(activeDay+1<t.days.length?"Day "+(activeDay+2):"a new day");}else carryBtn.classList.add("hidden");const currentRoute=routeForDay(day);const routeLabel=$("dayRouteLabel");if(currentRoute){routeLabel.textContent="Route · "+currentRoute.title;routeLabel.classList.remove("hidden","route-warning");}else if(day.stops.some(s=>s.placeId)){routeLabel.textContent="Multiple groups · check route in Maps";routeLabel.classList.remove("hidden");routeLabel.classList.add("route-warning");}else{routeLabel.textContent="";routeLabel.classList.add("hidden");routeLabel.classList.remove("route-warning");}$("stopList").innerHTML=day.stops.length?day.stops.map((s,i)=>renderStop(s,i)).join(""):'<div class="empty"><h2>A day with possibilities.</h2><p>Add the first place, meal or activity to start planning.</p><button class="primary" data-add="destination">＋ Add a stop</button></div>'; }
 function renderStop(s,i){
  const loc=s.location||s.name;
  const map=s.mapUrl||"https://www.google.com/maps/search/?api=1&query="+encodeURIComponent(loc);
@@ -99,7 +99,9 @@ function renderStop(s,i){
  const stateTag=s.done?'<span class="visit-state">✓ Already visited</span>':'<span class="planned-state">Planned</span>';
  const detailLink=s.placeId?'<a class="mini" href="place.html?id='+encodeURIComponent(s.placeId)+'" target="_blank" rel="noopener">↗ Place guide</a>':"";
  const region=s.placeGroup?'<span>⌖ '+escapeHtml(s.placeGroup)+(s.placeState?', '+escapeHtml(s.placeState):"")+'</span>':"";
- return '<article class="stop-card '+(s.done?'done':'')+'" data-stop="'+s.id+'"><button class="stop-check" data-action="toggle" data-id="'+s.id+'" aria-label="'+(s.done?"Mark not visited":"Mark visited")+'" aria-pressed="'+(s.done?'true':'false')+'">'+(s.done?"✓":"")+'</button><div class="time-rail">'+escapeHtml(s.time||"Anytime")+'<br><span style="font-weight:500;color:#92988f">'+(Number(s.duration)||0)+' min</span></div><div class="stop-main"><div class="stop-title-row"><h4 class="stop-title">'+escapeHtml(s.name)+'</h4><span class="tag '+escapeHtml(s.type)+'">'+escapeHtml(types[s.type]||"Activity")+'</span>'+stateTag+'</div><div class="stop-meta"><span class="crowd '+escapeHtml(crowd)+'">● '+escapeHtml(crowdLabels[crowd]||crowdLabels.unknown)+'</span>'+(s.location?'<span>⌖ '+escapeHtml(s.location)+'</span>':"")+region+'</div>'+(s.notes?'<p class="stop-notes">'+escapeHtml(s.notes)+'</p>':"")+'</div><div class="stop-actions"><a class="mini" href="'+map+'" target="_blank" rel="noopener">↗ Maps</a>'+detailLink+'<button class="mini" data-action="edit" data-id="'+s.id+'">Edit</button><button class="mini" data-action="move" data-id="'+s.id+'" title="Move stop later in the day">↓</button><button class="mini danger" data-action="remove" data-id="'+s.id+'" title="Remove this stop from the day" aria-label="Remove '+escapeHtml(s.name)+' from this day">Remove</button></div></article>';
+ const spilloverTag=s.spilloverFromDay?'<span class="spillover-state">↪ Planned for Day '+Number(s.spilloverFromDay)+' · spillover to Day '+(activeDay+1)+'</span>':"";
+ const shiftButton=s.spilloverFromDay&&!s.done?'<button class="mini" data-action="shift" data-id="'+s.id+'" title="Move this spillover destination to the next day">Shift to next day</button>':"";
+ return '<article class="stop-card '+(s.done?'done':'')+'" data-stop="'+s.id+'"><button class="stop-check" data-action="toggle" data-id="'+s.id+'" aria-label="'+(s.done?"Mark not visited":"Mark visited")+'" aria-pressed="'+(s.done?'true':'false')+'">'+(s.done?"✓":"")+'</button><div class="time-rail">'+escapeHtml(s.time||"Anytime")+'<br><span style="font-weight:500;color:#92988f">'+(Number(s.duration)||0)+' min</span></div><div class="stop-main"><div class="stop-title-row"><h4 class="stop-title">'+escapeHtml(s.name)+'</h4><span class="tag '+escapeHtml(s.type)+'">'+escapeHtml(types[s.type]||"Activity")+'</span>'+stateTag+spilloverTag+'</div><div class="stop-meta"><span class="crowd '+escapeHtml(crowd)+'">● '+escapeHtml(crowdLabels[crowd]||crowdLabels.unknown)+'</span>'+(s.location?'<span>⌖ '+escapeHtml(s.location)+'</span>':"")+region+'</div>'+(s.notes?'<p class="stop-notes">'+escapeHtml(s.notes)+'</p>':"")+'</div><div class="stop-actions"><a class="mini" href="'+map+'" target="_blank" rel="noopener">↗ Maps</a>'+detailLink+'<button class="mini" data-action="edit" data-id="'+s.id+'">Edit</button><button class="mini" data-action="move" data-id="'+s.id+'" title="Move stop later in the day">↓</button>'+shiftButton+'<button class="mini danger" data-action="remove" data-id="'+s.id+'" title="Remove this stop from the day" aria-label="Remove '+escapeHtml(s.name)+' from this day">Remove</button></div></article>';
 }
 function syncFields(){const t=active();if(!t)return;t.name=$("tripName").value;t.destination=$("destination").value;t.origin=$("origin").value;t.startDate=$("startDate").value;const n=Number($("dayCount").value);while(t.days.length<n)t.days.push({stops:[]});if(t.days.length>n)t.days=t.days.slice(0,n);activeDay=Math.min(activeDay,t.days.length-1);save();}
 function openCreate(){ $("tripForm").reset();$("newDate").value="";$("tripDialog").showModal();}
@@ -107,6 +109,53 @@ function createTrip(){const t=makeTrip({name:$("newName").value.trim(),destinati
 function editStop(id){const t=active(),s=id?t.days[activeDay].stops.find(x=>x.id===id):null;$("stopForm").reset();setVal("stopId",s?s.id:"");setVal("stopName",s?s.name:"");setVal("stopLocation",s?s.location:"");setVal("stopTime",s?s.time:"09:00");setVal("stopDuration",s?s.duration:60);setVal("stopType",s?s.type:"famous");setVal("stopCrowd",s?s.crowd:"medium");setVal("stopNotes",s?s.notes:"");$("stopModalTitle").textContent=s?"Edit stop":"Add a stop";$("deleteStop").classList.toggle("hidden",!s);$("stopDialog").showModal();}
 function saveStop(){const t=active(),list=t.days[activeDay].stops,id=$("stopId").value;let s=list.find(x=>x.id===id);if(!s){s={id:uid(),done:false};list.push(s);}Object.assign(s,{name:$("stopName").value.trim(),location:$("stopLocation").value.trim(),time:$("stopTime").value,duration:Number($("stopDuration").value)||60,type:$("stopType").value,crowd:$("stopCrowd").value,notes:$("stopNotes").value.trim()});list.sort((a,b)=>(a.time||"99:99").localeCompare(b.time||"99:99"));$("stopDialog").close();save();toast("Stop saved");}
 function removeStop(){const t=active(),id=$("stopId").value;t.days[activeDay].stops=t.days[activeDay].stops.filter(s=>s.id!==id);$("stopDialog").close();save();toast("Stop deleted");}
+function isCarryForwardStop(stop){
+ return Boolean(stop&&!stop.done&&String(stop.name||"").trim()&&stop.type!=="food"&&stop.type!=="break");
+}
+function nextAvailableStopTime(day,duration){
+ const scheduled=(day.stops||[]).filter(s=>/^\d{2}:\d{2}$/.test(s.time||"")).map(s=>({start:toMinutes(s.time),end:toMinutes(s.time)+(Number(s.duration)||60)}));
+ let clock=540,guard=0;
+ while(clock+duration<=1320&&guard<80){
+  const conflict=scheduled.find(s=>clock<s.end&&clock+duration>s.start);
+  if(!conflict)return fromMinutes(clock);
+  clock=conflict.end+15;
+  guard++;
+ }
+ return null;
+}
+function carryUnvisitedForward(stopId=null){
+ const t=active();if(!t)return;
+ const fromIndex=activeDay,source=t.days[fromIndex];
+ const candidates=(source.stops||[]).filter(s=>isCarryForwardStop(s)&&(!stopId||s.id===stopId));
+ if(!candidates.length){toast("No unvisited destinations to carry forward");return;}
+ let toIndex=fromIndex+1;
+ if(toIndex>=t.days.length){
+  if(t.days.length>=14){toast("This itinerary already has the maximum of 14 days");return;}
+  t.days.push({stops:[]});
+ }
+ const target=t.days[toIndex];if(!target.stops)target.stops=[];
+ const moving=new Set(),moved=[],merged=[];
+ for(const stop of candidates){
+  const keys=stopIdentityKeys(stop);
+  const match=target.stops.find(existing=>stopIdentityKeys(existing).some(key=>keys.includes(key)));
+  if(match){
+   if(!match.spilloverFromDay)match.spilloverFromDay=stop.spilloverFromDay||fromIndex+1;
+   moving.add(stop.id);merged.push(stop.name);
+   continue;
+  }
+  if(!stop.spilloverFromDay)stop.spilloverFromDay=fromIndex+1;
+  const nextTime=nextAvailableStopTime(target,Math.max(15,Number(stop.duration)||60));
+  if(nextTime)stop.time=nextTime;
+  target.stops.push(stop);moving.add(stop.id);moved.push(stop.name);
+ }
+ source.stops=source.stops.filter(s=>!moving.has(s.id));
+ target.stops.sort((a,b)=>(a.time||"99:99").localeCompare(b.time||"99:99"));
+ if(!moved.length&&!merged.length){toast("No destinations were moved");return;}
+ activeDay=toIndex;
+ save();
+ const total=moved.length+merged.length;
+ toast("Carried "+total+" unvisited destination"+(total===1?"":"s")+" from Day "+(fromIndex+1)+" to Day "+(toIndex+1)+(merged.length?" · existing duplicates combined":""));
+}
 function mapDay(){
  const t=active(),day=t.days[activeDay];
  // Starter-template placeholders are schedule reminders, not real map destinations.
@@ -377,10 +426,10 @@ $("pickerDay").addEventListener("change",()=>{syncPickerSourceLocation();pickedP
 $("pickerPlaceList").addEventListener("change",e=>{const input=e.target.closest(".picker-choice");if(!input)return;const id=input.value;if(input.checked){if(!pickedPlaceIds.has(id)){pickedPlaceIds.add(id);pickedPlaceOrder.push(id);}}else{pickedPlaceIds.delete(id);pickedPlaceOrder=pickedPlaceOrder.filter(x=>x!==id);}const row=input.closest(".picker-place");if(row)row.classList.toggle("selected",input.checked);updatePickerSelectionUI();});
 $("addSelectedPlaces").onclick=addPickedPlaces;
 $("newTrip").onclick=$("newTrip2").onclick=$("emptyCreate").onclick=openCreate;$("cancelCreate").onclick=()=>$("tripDialog").close();$("createTripSubmit").onclick=e=>{e.preventDefault();if($("newName").value.trim()&&$("newDestination").value.trim())createTrip();};$("tripForm").addEventListener("submit",e=>{e.preventDefault();createTrip();});$("stopForm").addEventListener("submit",e=>{e.preventDefault();saveStop();});
-["tripName","destination","origin","startDate"].forEach(id=>$(id).addEventListener("change",syncFields));$("dayCount").onchange=syncFields;$("dayMap").onclick=mapDay;$("shareBtn").onclick=share;$("exportBtn").onclick=exportTrip;$("addStop").onclick=()=>editStop();$("addDayStop").onclick=()=>addSimple("famous");$("addMeal").onclick=()=>addSimple("food");$("deleteStop").onclick=removeStop;
+["tripName","destination","origin","startDate"].forEach(id=>$(id).addEventListener("change",syncFields));$("dayCount").onchange=syncFields;$("carryForwardBtn").onclick=()=>carryUnvisitedForward();$("dayMap").onclick=mapDay;$("shareBtn").onclick=share;$("exportBtn").onclick=exportTrip;$("addStop").onclick=()=>editStop();$("addDayStop").onclick=()=>addSimple("famous");$("addMeal").onclick=()=>addSimple("food");$("deleteStop").onclick=removeStop;
 $("allTrips").onclick=()=>{const t=active();if(t){$("pageTitle").textContent=t.name||"My itineraries";$("workspace").classList.remove("hidden");}};
 $("dayTabs").addEventListener("click",e=>{const b=e.target.closest("[data-day]");if(b){activeDay=Number(b.dataset.day);render();}});
-$("stopList").addEventListener("click",e=>{const b=e.target.closest("button");if(!b)return;if(b.dataset.add){addSimple("famous");return;}const id=b.dataset.id,action=b.dataset.action;if(!action)return;const t=active(),list=t.days[activeDay].stops,s=list.find(x=>x.id===id);if(!s)return;if(action==="toggle"){s.done=!s.done;const removed=pruneVisitedDestinationsFromLaterDays(t);save();toast(s.done?(removed?"Marked visited · removed from later days":"Marked visited"):"Marked not visited");}else if(action==="edit")editStop(id);else if(action==="move"){const i=list.indexOf(s);if(i<list.length-1){[list[i],list[i+1]]=[list[i+1],list[i]];save();}}else if(action==="remove"){if(window.confirm("Remove this stop from Day "+(activeDay+1)+"?")){t.days[activeDay].stops=list.filter(x=>x.id!==id);save();toast("Destination removed from itinerary");}}});
+$("stopList").addEventListener("click",e=>{const b=e.target.closest("button");if(!b)return;if(b.dataset.add){addSimple("famous");return;}const id=b.dataset.id,action=b.dataset.action;if(!action)return;const t=active(),list=t.days[activeDay].stops,s=list.find(x=>x.id===id);if(!s)return;if(action==="toggle"){s.done=!s.done;const removed=pruneVisitedDestinationsFromLaterDays(t);save();toast(s.done?(removed?"Marked visited · removed from later days":"Marked visited"):"Marked not visited");}else if(action==="edit")editStop(id);else if(action==="move"){const i=list.indexOf(s);if(i<list.length-1){[list[i],list[i+1]]=[list[i+1],list[i]];save();}}else if(action==="shift"&&s.spilloverFromDay&&!s.done){carryUnvisitedForward(id);}else if(action==="remove"){if(window.confirm("Remove this stop from Day "+(activeDay+1)+"?")){t.days[activeDay].stops=list.filter(x=>x.id!==id);save();toast("Destination removed from itinerary");}}});
 $("tripList").addEventListener("click",e=>{const b=e.target.closest("[data-trip]");if(b){activeId=b.dataset.trip;activeDay=0;render();}});window.addEventListener("hashchange",()=>{if(location.hash.startsWith("#trip=")){const was=activeId;try{const shared=JSON.parse(decodeURIComponent(escape(atob(location.hash.slice(6)))));if(shared.name&&Array.isArray(shared.days)){shared.id=uid();trips.unshift(shared);activeId=shared.id;activeDay=0;history.replaceState(null,"",location.pathname+location.search);save();toast("Shared trip opened as your own copy");}}catch{activeId=was;}}});
 load();
 })();
