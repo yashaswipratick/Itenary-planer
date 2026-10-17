@@ -30,19 +30,24 @@
     <div class="filter-intro"><div><p class="eyebrow green">FIND YOUR PLACE</p><h2>Where do you want to explore?</h2></div><p class="muted small-text">Choose a country, state and city/area. Nearby recommendations update with your selection.</p></div>
     <div class="filter-grid">
       <div><label for="countrySelect">COUNTRY</label><select id="countrySelect"><option value="India">India</option></select></div>
-      <div><label for="stateSelect">STATE</label><select id="stateSelect"><option value="Karnataka">Karnataka</option></select></div>
+      <div><label for="stateSelect">STATE</label><select id="stateSelect"><option value="Karnataka">Karnataka</option><option value="Kerala">Kerala</option></select></div>
       <div><label for="citySelect">CITY / AREA</label><select id="citySelect"></select></div>
     </div>
     <div class="search-row"><label class="search-box"><span>⌕</span><input id="placeSearch" type="search" placeholder="Search a place, experience or area…" autocomplete="off"></label><button id="clearFilters" class="btn">Reset filters</button></div>
   </section>
 
   <section class="region-intro" id="regionIntro">
-    <div><p class="eyebrow green">THE DESTINATION</p><h2>Coorg, in brief</h2><p>Kodagu (also called Coorg) is a hilly district in southwestern Karnataka, on the eastern slopes of the Western Ghats. It is known for coffee and pepper plantations, forested hills and the Kaveri River's source at Talakaveri. Madikeri is the district headquarters.</p></div>
-    <a class="text-link" href="https://en.wikipedia.org/wiki/Kodagu_district" target="_blank" rel="noopener">Read Kodagu on Wikipedia ↗</a>
+    <div><p class="eyebrow green">THE DESTINATION</p><h2 id="regionHeading">Coorg, in brief</h2><p id="regionDescription">Kodagu (also called Coorg) is a hilly district in southwestern Karnataka on the eastern slopes of the Western Ghats. It is known for coffee and pepper plantations, forested hills and the Kaveri River’s source at Talakaveri. Madikeri is the district headquarters.</p></div>
+    <a id="regionWikiLink" class="text-link" href="https://en.wikipedia.org/wiki/Kodagu_district" target="_blank" rel="noopener">Read Kodagu on Wikipedia ↗</a>
   </section>
 
   <section class="list-heading"><div><p class="eyebrow green">THE PLACE COLLECTION</p><h2 id="resultsTitle">Explore Coorg by area</h2><p class="muted" id="resultsSubtitle">Browse every place in the guide, grouped into practical sightseeing circuits.</p></div><span class="result-count" id="resultCount">23 places</span></section>
   <div id="placeGroups" class="place-groups" aria-live="polite"></div>
+
+  <section id="borderEscapesSection" class="border-escapes-section hidden">
+    <div class="nearby-head"><div><p class="eyebrow green">SEPARATE REGIONAL COLLECTION</p><h2 id="borderEscapesTitle">Beyond Coorg: Kerala border escapes</h2><p class="muted" id="borderEscapesCopy">Hill viewpoints and waterfalls across the state border, not inside Coorg.</p></div><span class="border-area-chip">KANNUR · KERALA</span></div>
+    <div id="borderEscapeCards" class="place-grid nearby-grid"></div>
+  </section>
 
   <section id="nearbySection" class="nearby-section hidden">
     <div class="nearby-head"><div><p class="eyebrow green">PAIR YOUR VISIT</p><h2 id="nearbyTitle">Nearby areas to explore</h2><p class="muted" id="nearbyCopy">More places that can fit into the same regional outing.</p></div></div>
