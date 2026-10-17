@@ -83,7 +83,7 @@ function createTrip(){const t=makeTrip({name:$("newName").value.trim(),destinati
 function editStop(id){const t=active(),s=id?t.days[activeDay].stops.find(x=>x.id===id):null;$("stopForm").reset();setVal("stopId",s?s.id:"");setVal("stopName",s?s.name:"");setVal("stopLocation",s?s.location:"");setVal("stopTime",s?s.time:"09:00");setVal("stopDuration",s?s.duration:60);setVal("stopType",s?s.type:"famous");setVal("stopCrowd",s?s.crowd:"medium");setVal("stopNotes",s?s.notes:"");$("stopModalTitle").textContent=s?"Edit stop":"Add a stop";$("deleteStop").classList.toggle("hidden",!s);$("stopDialog").showModal();}
 function saveStop(){const t=active(),list=t.days[activeDay].stops,id=$("stopId").value;let s=list.find(x=>x.id===id);if(!s){s={id:uid(),done:false};list.push(s);}Object.assign(s,{name:$("stopName").value.trim(),location:$("stopLocation").value.trim(),time:$("stopTime").value,duration:Number($("stopDuration").value)||60,type:$("stopType").value,crowd:$("stopCrowd").value,notes:$("stopNotes").value.trim()});list.sort((a,b)=>(a.time||"99:99").localeCompare(b.time||"99:99"));$("stopDialog").close();save();toast("Stop saved");}
 function removeStop(){const t=active(),id=$("stopId").value;t.days[activeDay].stops=t.days[activeDay].stops.filter(s=>s.id!==id);$("stopDialog").close();save();toast("Stop deleted");}
-function mapDay(){const t=active(),stops=t.days[activeDay].stops.filter(s=>s.location||s.name);if(!stops.length){toast("Add a destination first");return;}const places=stops.map(s=>s.location||s.name),origin=t.baseLocation||t.origin||places.shift(),destination=places.pop()||origin;let url="https://www.google.com/maps/dir/?api=1&origin="+encodeURIComponent(origin)+"&destination="+encodeURIComponent(destination)+"&travelmode=driving";if(places.length)url+="&waypoints="+encodeURIComponent(places.join("|"));window.open(url,"_blank","noopener");}
+function mapDay(){const t=active(),stops=t.days[activeDay].stops.filter(s=>s.location||s.name);if(!stops.length){toast("Add a destination first");return;}const places=stops.map(s=>s.location||s.name),origin=dailyBaseForTrip(t)||places.shift(),destination=places.pop()||origin;let url="https://www.google.com/maps/dir/?api=1&origin="+encodeURIComponent(origin)+"&destination="+encodeURIComponent(destination)+"&travelmode=driving";if(places.length)url+="&waypoints="+encodeURIComponent(places.join("|"));window.open(url,"_blank","noopener");}
 function share(){const t=active();if(!t)return;try{const payload=btoa(unescape(encodeURIComponent(JSON.stringify(t))));const url=location.origin+location.pathname+"#trip="+payload;navigator.clipboard.writeText(url).then(()=>toast("Share link copied")).catch(()=>prompt("Copy this itinerary link",url));}catch{toast("Could not create share link");}}
 function exportTrip(){const t=active();const blob=new Blob([JSON.stringify(t,null,2)],{type:"application/json"});const a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download=(t.name||"itinerary").toLowerCase().replace(/[^a-z0-9]+/g,"-")+".json";a.click();URL.revokeObjectURL(a.href);toast("Itinerary exported");}
 function addSimple(type){editStop();setVal("stopType",type);if(type==="food")setVal("stopName","Meal / break");else setVal("stopName","New destination");}
@@ -131,8 +131,14 @@ function routeForDay(day){
  (day.stops||[]).filter(s=>s.placeId).forEach(s=>s.routeId=day.routeId);
  return candidates[0];
 }
+function dailyBaseForTrip(t){
+ const saved=String(t&&t.baseLocation||"").trim();
+ if(saved)return saved;
+ const legacy=String(t&&t.origin||"").trim();
+ return /\\b(resort|hotel|homestay|lodge|villa|estate|virajpet|bittangala|ambatty|madikeri|kushalnagar|bylakuppe|somwarpet|kutta)\\b/i.test(legacy)?legacy:"";
+}
 function baseRegionForTrip(t){
- const base=String(t&&(t.baseLocation||t.origin)||"").toLowerCase();
+ const base=dailyBaseForTrip(t).toLowerCase();
  if(/virajpet|bittangala|ambatty|bitangala/.test(base))return "virajpet";
  if(/kushalnagar|bylakuppe|nisargadhama|valnur|siddapura|harangi|dubare/.test(base))return "east";
  if(/madikeri|mercara|coorg golf links/.test(base))return "madikeri";
@@ -210,7 +216,7 @@ function updatePickerRouteSummary(){
  const conflictMessage=incompatible.length?'<div class="route-conflict"><b>Different route already planned on this day</b><p>'+escapeHtml(incompatible.map(s=>s.name).join(", "))+' '+(incompatible.length===1?"is":"are")+' not part of this circuit. To avoid backtracking, remove '+(incompatible.length===1?"this stop":"these stops")+' from this day and plan them on a different day.</p></div>':"";
  const chips=route.placeIds.map((id,i)=>{const p=placeById(id);return p?'<span class="route-stop-chip"><i>'+(i+1)+'</i>'+escapeHtml(p.name)+'</span>':"";}).join("");
  const lock=(selected.day.routeId===route.id)?'<span class="route-locked-pill">Day '+(selected.index+1)+' · current route</span>':"";
- const base=selected.trip.baseLocation||selected.trip.origin||"";
+ const base=dailyBaseForTrip(selected.trip);
  const sourceNote=base?'<p class="route-source-note"><b>Starts from:</b> '+escapeHtml(base)+'. Route suggestions are prioritized around this stay; verify live driving directions before leaving.</p>':'<p class="route-source-note">Add your hotel or resort in “Staying at / daily start” to prioritize circuits around your base.</p>';
  panel.innerHTML='<div class="route-summary-top"><div><p class="route-summary-kicker">CURATED DAY CIRCUIT</p><h3>'+escapeHtml(route.title)+'</h3><p class="route-direction">'+escapeHtml(route.direction)+'</p></div>'+lock+'</div><p class="route-summary-description">'+escapeHtml(route.description)+'</p>'+sourceNote+'<div class="route-stop-sequence"><span class="route-sequence-label">SUGGESTED ORDER</span><div class="route-stop-chips">'+chips+'</div></div>'+conflictMessage;
 }
