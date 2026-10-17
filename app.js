@@ -90,7 +90,7 @@ function addSimple(type){editStop();setVal("stopType",type);if(type==="food")set
 const starterSlotNames=new Set(["Breakfast / coffee","Travel to first stop","Main attraction","Hidden gem nearby","Lunch break","Explore at an easy pace","Rest / travel buffer","Offbeat stop","Sunset / scenic stop","Dinner"]);
 const replaceableSightseeingSlots=new Set(["Main attraction","Hidden gem nearby","Explore at an easy pace","Offbeat stop","Sunset / scenic stop"]);
 const ROUTE_CIRCUITS=[
- {id:"virajpet-east-corridor",category:"Recommended from Virajpet base",title:"Virajpet → Dubare → Harangi Reservoir",direction:"Virajpet / Bittangala → Dubare → Harangi",defaultDuration:90,description:"A practical eastbound day from a Virajpet-area stay: visit Dubare first, then continue to Harangi Elephant Camp & Tree Park and the nearby Harangi Reservoir. Don't add Dubare a second time; check live road directions and activity timings before departure.",placeIds:["dubare-elephant-camp","harangi-elephant-camp-tree-park","harangi-dam"]},
+ {id:"virajpet-east-corridor",category:"East · Dubare & Harangi",title:"Dubare & Harangi Reservoir circuit",direction:"Dubare → Harangi Reservoir",defaultDuration:90,description:"A curated grouping of Dubare Elephant Camp, Harangi Elephant Camp & Tree Park and Harangi Reservoir. Choose these places only if they fit your plans; RoamPlan does not calculate the best road route or travel time.",placeIds:["dubare-elephant-camp","harangi-elephant-camp-tree-park","harangi-dam"]},
  {id:"kushalnagar-river-adventure",category:"East · Kushalnagar activities",title:"Kushalnagar River & Adventure Stops",direction:"Greenway / 7th Hosakote → Nisargadhama → Basavanahalli / Baichanahalli",defaultDuration:75,description:"A regional coffee, river and family-activity circuit around the Kushalnagar side. This is a curated grouping, not live road-time optimization; verify order and current attraction access in Maps.",placeIds:["greenway-coffee-island","kaveri-nisargadhama","coorg-hanging-bridge","coorg-adventure-park"]},
  {id:"kaapi-nele-experience",category:"South-west · Ammathi / Bilugunda",title:"Kaapi Nele Plantation & Adventure Walk",direction:"Ammathi / Bilugunda",defaultDuration:120,description:"A booking-led guided plantation walk and nature-adventure experience. Confirm which activity/package you are booking and its meeting point before travelling.",placeIds:["kaapi-nele-adventure-trek"]},
  {id:"bylakuppe-nisargadhama",category:"East · Bylakuppe / Kushalnagar",title:"Golden Temple & Nisargadhama",direction:"Bylakuppe → Nisargadhama",defaultDuration:60,description:"A compact culture-and-river stop on the eastern approach. Harangi and Dubare are separate circuits to avoid adding opposite-side detours.",placeIds:["golden-temple","kaveri-nisargadhama"]},
@@ -134,62 +134,13 @@ function routeForDay(day){
  (day.stops||[]).filter(s=>s.placeId).forEach(s=>s.routeId=day.routeId);
  return candidates[0];
 }
-function dailyBaseForTrip(t){
- const saved=String(t&&t.baseLocation||"").trim();
- if(saved)return saved;
- const legacy=String(t&&t.origin||"").trim();
- return /\b(resort|hotel|homestay|lodge|villa|estate|virajpet|bittangala|ambatty|madikeri|kushalnagar|bylakuppe|somwarpet|kutta)\b/i.test(legacy)?legacy:"";
-}
-function baseRegionForTrip(t){
- const base=dailyBaseForTrip(t).toLowerCase();
- if(/virajpet|bittangala|ambatty|bitangala/.test(base))return "virajpet";
- if(/kushalnagar|bylakuppe|nisargadhama|valnur|siddapura|harangi|dubare/.test(base))return "east";
- if(/madikeri|mercara|coorg golf links/.test(base))return "madikeri";
- if(/somwarpet|pushpagiri|honnamana/.test(base))return "somwarpet";
- if(/kakkabe|yevakapadi|nalknad|thadiandamol/.test(base))return "kakkabe";
- if(/bhagamandala|talakaveri|talacauvery|nishani/.test(base))return "west";
- if(/kutta|iruppu|nagarahole/.test(base))return "south";
- if(/kerala|kannur|ullikkal|kanjirakolly|vellad|areekamala|ezharakund/.test(base))return "kerala";
- return "";
-}
-function routePriorityForTrip(route,t){
- const region=baseRegionForTrip(t);
- const order={
-  virajpet:["virajpet-east-corridor","kaapi-nele-experience","kakkabe-countryside","thadiyandamol-trek","brahmagiri-sanctuary","iruppu-falls","nagarahole-safari","kushalnagar-river-adventure","dubare-camp","harangi-backwaters","chiklihole-reservoir","bylakuppe-nisargadhama"],
-  east:["kushalnagar-river-adventure","bylakuppe-nisargadhama","harangi-backwaters","dubare-camp","chiklihole-reservoir","virajpet-east-corridor"],
-  madikeri:["madikeri-town","abbey-falls","mandalpatti","coffee-estate","kote-abbe","galibeedu-lake","bhagamandala-talakaveri"],
-  somwarpet:["somwarpet-pushpagiri","nishani-motte-trek"],
-  kakkabe:["kakkabe-countryside","thadiyandamol-trek","iruppu-falls"],
-  west:["bhagamandala-talakaveri","nishani-motte-trek"],
-  south:["brahmagiri-sanctuary","iruppu-falls","nagarahole-safari"],
-  kerala:["kerala-kalanki","kerala-areekamala","kerala-alakapuri","kerala-ezharakund"]
- }[region]||[];
- const i=order.indexOf(route.id);
- return i<0?100: i;
-}
-function routeDefaultForTrip(t){
- const region=baseRegionForTrip(t);
- const defaults={virajpet:"virajpet-east-corridor",east:"bylakuppe-nisargadhama",madikeri:"madikeri-town",somwarpet:"somwarpet-pushpagiri",kakkabe:"kakkabe-countryside",west:"bhagamandala-talakaveri",south:"iruppu-falls",kerala:"kerala-kalanki"};
- if(defaults[region])return defaults[region];
- return (t.destination||"").toLowerCase().includes("kerala")?"kerala-kalanki":"bylakuppe-nisargadhama";
-}
-function preferredRouteForDay(day,t){
- const ids=(day&&day.stops||[]).filter(s=>s.placeId).map(s=>s.placeId);
- if(!ids.length)return routeById(routeDefaultForTrip(t));
- const candidates=ROUTE_CIRCUITS.filter(r=>ids.every(id=>r.placeIds.includes(id)));
- candidates.sort((a,b)=>routePriorityForTrip(a,t)-routePriorityForTrip(b,t)||a.placeIds.length-b.placeIds.length);
- return candidates[0]||null;
-}
-function circuitCompatible(day,route){return !!route&&(day.stops||[]).filter(s=>s.placeId).every(s=>route.placeIds.includes(s.placeId));}
 function currentTripLabel(t){return (t.name||"Untitled itinerary")+" · "+(t.destination||"no destination set");}
 function toMinutes(clock){const parts=String(clock||"09:00").split(":").map(Number);return (parts[0]||0)*60+(parts[1]||0);}
 function fromMinutes(value){const n=Math.max(0,value)%1440;return String(Math.floor(n/60)).padStart(2,"0")+":"+String(n%60).padStart(2,"0");}
 function suggestedStartTime(t,dayIndex){const stops=(t.days[dayIndex]&&t.days[dayIndex].stops)||[];const real=stops.filter(s=>!starterSlotNames.has(s.name));if(!real.length)return "09:00";let last=0;real.forEach(s=>{if(/^\d{2}:\d{2}$/.test(s.time||""))last=Math.max(last,toMinutes(s.time)+(Number(s.duration)||60));});const suggested=last?last+15:540;return fromMinutes(suggested>1320?540:suggested);}
-function populatePickerAreas(trip=active()){
- const select=$("pickerArea");
- const routes=[...ROUTE_CIRCUITS].sort((a,b)=>routePriorityForTrip(a,trip)-routePriorityForTrip(b,trip)||ROUTE_CIRCUITS.indexOf(a)-ROUTE_CIRCUITS.indexOf(b));
- const categories=[...new Set(routes.map(r=>r.category))];
- select.innerHTML='<option value="">Choose a route circuit…</option>'+categories.map(category=>'<optgroup label="'+escapeHtml(category)+'">'+routes.filter(r=>r.category===category).map(r=>'<option value="'+escapeHtml(r.id)+'">'+escapeHtml(r.title)+'</option>').join("")+'</optgroup>').join("");
+function populatePickerAreas(){
+ const select=$("pickerArea"),categories=[...new Set(ROUTE_CIRCUITS.map(r=>r.category))];
+ select.innerHTML='<option value="">Choose a route / area…</option>'+categories.map(category=>'<optgroup label="'+escapeHtml(category)+'">'+ROUTE_CIRCUITS.filter(r=>r.category===category).map(r=>'<option value="'+escapeHtml(r.id)+'">'+escapeHtml(r.title)+'</option>').join("")+'</optgroup>').join("");
 }
 function pickerDay(){
  const t=active();if(!t)return null;
@@ -197,10 +148,6 @@ function pickerDay(){
  return {trip:t,index:idx,day:t.days[idx]};
 }
 function currentPickerRoute(){return routeById($("pickerArea").value);}
-function routeIsCompatibleWithSelectedDay(route){
- const selected=pickerDay();
- return !!selected&&circuitCompatible(selected.day,route);
-}
 function updatePickerRouteSummary(){
  const route=currentPickerRoute(),selected=pickerDay();
  const panel=$("pickerRouteSummary");
