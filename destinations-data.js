@@ -316,7 +316,7 @@ window.ROAMPLANDATA = {
       overview:"A protected Western Ghats forest landscape associated with the Brahmagiri range near the Kodagu–Kerala border. This listing preserves the location details supplied for the Kappimala–Paithalmala Road pin.",
       why:"A nature-focused option for travellers interested in Western Ghats forest, wildlife and biodiversity.",
       bestTime:"Confirm current forest access, permissions and weather before planning; do not assume casual entry into the sanctuary is allowed.",
-      notes:"Location check needed: the supplied Vellad / PIN 670571 address may not be the usual Kodagu-side sanctuary entrance and its state details may be inconsistent. Verify the exact pin and permitted entry gate with Forest Department/local authorities before driving or booking a trek.",
+      notes:"Address supplied: 5JFV+3J4, Kappimala - Paithalmala Road, Vellad, Karnataka 670571. Location warning: India Post lists Vellad / PIN 670571 under Kannur, Kerala, so this address may not be the usual Kodagu-side sanctuary entrance. The Maps button searches for the sanctuary by name instead of sending you to this potentially mismatched address. Verify the exact pin and permitted entry gate with Forest Department/local authorities before driving or booking a trek.",
       wikiTitle:"Brahmagiri Wildlife Sanctuary", officialUrl:"https://kodagu.nic.in/en/tourism/adventures/", nearby:["iruppu-falls","nagarahole-national-park","nishani-motte"]
     },
     {
