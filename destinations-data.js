@@ -22,7 +22,7 @@ window.ROAMPLANDATA = {
       why:"Visit for Tibetan Buddhist art, peaceful courtyards and a different cultural perspective on the region.",
       bestTime:"Morning or early afternoon; avoid prayer-hall disruption and follow visitor notices.",
       notes:"Dress respectfully, keep voices low, and confirm visitor access on festival days. Pair it with Nisargadhama or another Kushalnagar-side stop.",
-      wikiTitle:"Namdroling Monastery", nearby:["kaveri-nisargadhama","dubare-elephant-camp","harangi-reservoir"]
+      wikiTitle:"Namdroling Monastery", nearby:["kaveri-nisargadhama","dubare-elephant-camp","harangi-dam"]
     },
     {
       id:"dubare-elephant-camp", name:"Dubare Elephant Camp", city:"Kushalnagar", group:"Kushalnagar & Bylakuppe",
@@ -31,7 +31,7 @@ window.ROAMPLANDATA = {
       why:"Good for families and visitors interested in elephants, conservation interpretation and riverine forest landscapes.",
       bestTime:"Book an available morning session where possible.",
       notes:"Check the operator's current rules, session timings and transport arrangements before leaving. Follow staff directions and do not assume animal contact is permitted.",
-      wikiTitle:"Dubare Elephant Camp", nearby:["kaveri-nisargadhama","chiklihole-reservoir","harangi-reservoir"]
+      wikiTitle:"Dubare Elephant Camp", nearby:["kaveri-nisargadhama","harangi-dam","harangi-elephant-camp-tree-park","chiklihole-reservoir"]
     },
     {
       id:"kaveri-nisargadhama", name:"Kaveri Nisargadhama", city:"Kushalnagar", group:"Kushalnagar & Bylakuppe",
@@ -40,16 +40,25 @@ window.ROAMPLANDATA = {
       why:"A relaxed stop for a short walk, family-friendly nature time and green, shaded scenery.",
       bestTime:"Morning or late afternoon; check local conditions during heavy rain.",
       notes:"Facilities and river access can vary by season. Treat it as a developed nature park rather than a remote wilderness stop.",
-      wikiTitle:"Nisargadhama", nearby:["golden-temple","dubare-elephant-camp","harangi-reservoir","chiklihole-reservoir"]
+      wikiTitle:"Nisargadhama", nearby:["golden-temple","dubare-elephant-camp","harangi-dam","chiklihole-reservoir"]
     },
     {
-      id:"harangi-reservoir", name:"Harangi Reservoir & Tree Park", city:"Kushalnagar", group:"Kushalnagar & Bylakuppe",
-      tag:"Nature · Scenic", crowd:"Usually quieter", duration:"45–90 min", mapQuery:"Harangi Reservoir Kodagu",
-      overview:"A reservoir and surrounding green landscape on the Harangi, a tributary within the Kaveri basin. A useful alternative to the district's busier headline attractions.",
-      why:"A pleasant option for water-and-hills views, a short stretch break and a more open landscape.",
-      bestTime:"Daylight hours; views and access can change with reservoir operations and weather.",
-      notes:"Don't assume boating, park facilities or unrestricted dam access are available. Follow all reservoir safety notices.",
-      wikiTitle:"Harangi Reservoir", nearby:["kaveri-nisargadhama","dubare-elephant-camp","chiklihole-reservoir"]
+      id:"harangi-dam", name:"Harangi Dam", city:"Kushalnagar", group:"Kushalnagar & Bylakuppe",
+      tag:"Scenic · Reservoir", crowd:"Crowd varies by season", duration:"45–75 min", mapQuery:"Harangi Dam Hudgur Kodagu",
+      overview:"Harangi Dam is a masonry dam across the Harangi River, a tributary of the Kaveri, near Hudgur in Kodagu. The reservoir and backwaters sit amid the green landscape east of Madikeri and are commonly visited as a short nature stop near Kushalnagar.",
+      why:"Visit for the reservoir scenery and to understand the water landscape around the Kaveri basin. It pairs naturally with the nearby Harangi Elephant Camp & Tree Park.",
+      bestTime:"Daylight hours. The surrounding views and safe access can change with reservoir operations, rain and water levels.",
+      notes:"Public access may be limited to designated visitor areas. Do not enter dam structures or restricted areas, and follow all safety notices. The Kodagu district page lists it close to Kushalnagar and roughly 33 km from Madikeri; route distance depends on your start point.",
+      wikiTitle:"Harangi Dam", officialUrl:"https://kodagu.nic.in/en/tourist-place/harangi-dam/", nearby:["harangi-elephant-camp-tree-park","kaveri-nisargadhama","dubare-elephant-camp","chiklihole-reservoir"]
+    },
+    {
+      id:"harangi-elephant-camp-tree-park", name:"Harangi Elephant Camp & Tree Park", city:"Kushalnagar", group:"Kushalnagar & Bylakuppe",
+      tag:"Wildlife · Nature", crowd:"Crowd varies by season", duration:"60–120 min", mapQuery:"Harangi Tree Park and Elephant Camp Kodagu",
+      overview:"A forest-department elephant camp and tree park on the right side of Harangi reservoir's backwater area, adjacent to the tree park. The Kodagu district tourism website says the camp was inaugurated in 2022 and describes a sunset viewpoint and benches beside the backwaters.",
+      why:"A useful alternative to the better-known Dubare stop if you are exploring the Harangi reservoir area. The setting combines an elephant-camp visit with views of the backwaters and surrounding greenery.",
+      bestTime:"Check current visitor hours and activity availability before travelling; morning or late afternoon can work well for an unhurried visit.",
+      notes:"The official tourism page mentions pedal boats in the backwaters, but availability and visitor rules can change. Confirm activities, any elephant-viewing restrictions, and access locally; do not assume close contact with elephants is allowed.",
+      wikiTitle:"Harangi Dam", wikiLabel:"Harangi Dam and backwaters (regional context)", officialUrl:"https://kodagu.nic.in/en/tourist-place/harangi-tree-park-and-elephant-camp/", nearby:["harangi-dam","dubare-elephant-camp","kaveri-nisargadhama","chiklihole-reservoir"]
     },
     {
       id:"chiklihole-reservoir", name:"Chiklihole Reservoir", city:"Kushalnagar", group:"Kushalnagar & Bylakuppe",
@@ -58,7 +67,7 @@ window.ROAMPLANDATA = {
       why:"Choose it for a slower stop, photography and a break from crowded viewpoints.",
       bestTime:"Clear daylight hours; avoid approaching the water in heavy rain.",
       notes:"Road surfaces and facilities may be limited. Verify the route locally, carry water and leave before dark.",
-      wikiTitle:"Chiklihole Reservoir", nearby:["dubare-elephant-camp","kaveri-nisargadhama","harangi-reservoir"]
+      wikiTitle:"Chiklihole Reservoir", nearby:["dubare-elephant-camp","kaveri-nisargadhama","harangi-dam"]
     },
     {
       id:"mandalpatti-viewpoint", name:"Mandalpatti Viewpoint", city:"Madikeri", group:"Madikeri & Central Coorg",
