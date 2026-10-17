@@ -95,7 +95,7 @@ window.ROAMPLANDATA = {
       wikiTitle:"Chiklihole Reservoir", nearby:["dubare-elephant-camp","kaveri-nisargadhama","harangi-dam"]
     },
     {
-      id:"greenway-coffee-island", name:"Greenway Coffee Island Plantation Tour", city:"Suntikoppa / 7th Hosakote", group:"Kushalnagar & Bylakuppe",
+      id:"greenway-coffee-island", name:"Greenway Coffee Island Plantation Tour", city:"Suntikoppa / 7th Hosakote", group:"Suntikoppa & Coffee Country",
       tag:"Coffee · Plantation walk", crowd:"Popular; confirm booking", duration:"60–120 min", mapQuery:"Greenway Coffee Island plantation tour, Green way coffee island Nature walk, 7th Hosakote, Mysore Bangalore Road, Karnataka 571237",
       overview:"A guided coffee-plantation and nature-walk experience in the 7th Hosakote / Suntikoppa area along the Mysore–Bangalore road. Tours may include an introduction to coffee and the plantation landscape.",
       why:"A good activity stop for learning about Coorg's coffee-growing landscape rather than visiting only viewpoints and waterfalls.",
