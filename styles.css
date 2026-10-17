@@ -127,3 +127,8 @@
 .spillover-state{display:inline-flex;align-items:center;gap:4px;border-radius:999px;padding:4px 7px;font-size:9px;font-weight:800;line-height:1.35;background:#fff3dd;color:#87591c;border:1px solid #f0d8aa;white-space:normal}
 #carryForwardBtn{border-color:#d8c18e;background:#fff8e9;color:#80551e}
 #carryForwardBtn:hover{border-color:#bf9950;background:#fff1d5}
+
+/* Make spillover actions easy to find without overwhelming the stop card. */
+.stop-actions{flex-wrap:wrap}
+.spillover-return{background:#eef5e9;border-color:#cfe1ce;color:#315c3e}
+.spillover-return:hover{background:#e1eedb;border-color:#afc9ab}
