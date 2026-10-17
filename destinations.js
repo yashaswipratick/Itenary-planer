@@ -99,8 +99,8 @@ function render(){
  borderSection.classList.toggle("hidden",!showBorder);
  if(showBorder){
    $("borderEscapesTitle").textContent="Beyond Coorg: Kerala border escapes";
-   $("borderEscapesCopy").textContent="Separate from Kodagu district · North Kerala hill viewpoints and waterfalls. Route distance and drive time vary from your Coorg base; these are regional extensions, not inside-Coorg attractions.";
-   $("borderEscapeCards").innerHTML='<div class="place-grid nearby-grid">'+borderPlaces.map(p=>placeCard(p,true)).join("")+'</div>';
+   $("borderEscapesCopy").textContent="A separate mini-guide to hill viewpoints and waterfalls across the state line in Kannur, Kerala. Browse these as optional road-trip extensions; check your route from the exact stay before adding them.";
+   $("borderEscapeCards").innerHTML=borderPlaces.map(p=>placeCard(p,true)).join("");
  }
  const nearbyIds=new Set();
  matches.forEach(p=>(p.nearby||[]).forEach(id=>nearbyIds.add(id)));
@@ -110,7 +110,7 @@ function render(){
  if(showNearby){
   $("nearbyTitle").textContent="Nearby places to combine with "+city;
   $("nearbyCopy").textContent="Curated pairing ideas from the same state and regional circuit, not live distance or traffic estimates.";
-  $("nearbyGroups").innerHTML='<div class="place-grid nearby-grid">'+nearby.map(p=>placeCard(p,true)).join("")+'</div>';
+  $("nearbyGroups").innerHTML=nearby.map(p=>placeCard(p,true)).join("");
  }
 }
 fillSelect();render();
