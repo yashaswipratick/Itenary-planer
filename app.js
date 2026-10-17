@@ -174,29 +174,31 @@ function handlePickerCircuitChange(){
 function openPlacePicker(){
  const t=active();if(!t){toast("Create an itinerary first");return;}
  pickedPlaceIds.clear();pickedPlaceOrder=[];
- $("pickerTripName").textContent="Adding to "+currentTripLabel(t)+". Select the day, search places and check everything you want to include.";
+ $("pickerTripName").textContent="Choose a single route for this day. The catalogue will show only stops on that circuit and in suggested travel order.";
  $("pickerDay").innerHTML=t.days.map((d,i)=>'<option value="'+i+'">Day '+(i+1)+(t.startDate?' · '+escapeHtml(formatDate(t.startDate,i)):"")+'</option>').join("");
  $("pickerDay").value=String(Math.min(activeDay,t.days.length-1));
- $("pickerStartTime").value=suggestedStartTime(t,Number($("pickerDay").value));
- $("pickerDuration").value="60";$("pickerSearch").value="";
+ $("pickerSearch").value="";
  populatePickerAreas();
- const destination=(t.destination||"").toLowerCase();
- $("pickerArea").value=destination.includes("kerala")?"kerala-border":"Coorg";
+ configurePickerForDay();
  renderPickerPlaces();
  $("placePickerDialog").showModal();
 }
 function addPickedPlaces(){
  const t=active();if(!t){toast("Create an itinerary first");return;}
- const ids=pickedPlaceOrder.filter(id=>pickedPlaceIds.has(id));
- if(!ids.length){toast("Select at least one destination");return;}
- const dayIndex=Math.max(0,Math.min(t.days.length-1,Number($("pickerDay").value)||0));
- const day=t.days[dayIndex];if(!day.stops)day.stops=[];
+ const selected=pickerDay(),route=currentPickerRoute();
+ if(!selected||!route){toast("Choose a route circuit first.");return;}
+ const dayIndex=selected.index,day=selected.day;if(!day.stops)day.stops=[];
+ if(day.routeId&&day.routeId!==route.id){toast("This day is already assigned to another route. Use another day for this circuit.");return;}
+ if(!circuitCompatible(day,route)){toast("This day contains places from a different route. Move or remove them first, or use another day.");return;}
+ // Use the circuit's recommended sequence, regardless of checkbox click order.
+ const ids=route.placeIds.filter(id=>pickedPlaceIds.has(id));
+ if(!ids.length){toast("Select at least one destination from this route.");return;}
  const seen=new Set(t.days.flatMap(d=>d.stops||[]).flatMap(s=>[s.placeId?"place:"+s.placeId:"","name:"+String(s.name||"").trim().toLowerCase()]).filter(Boolean));
- const duration=Math.max(15,Math.min(360,Number($("pickerDuration").value)||60));
+ const duration=Math.max(15,Math.min(600,Number($("pickerDuration").value)||route.defaultDuration||60));
  const candidates=[];let duplicates=0;
- ids.forEach(id=>{const p=(catalog.places||[]).find(x=>x.id===id);if(!p)return;const nameKey="name:"+String(p.name||"").trim().toLowerCase(),idKey="place:"+p.id;if(seen.has(idKey)||seen.has(nameKey)){duplicates++;return;}seen.add(idKey);seen.add(nameKey);candidates.push(p);});
+ ids.forEach(id=>{const p=placeById(id);if(!p)return;const nameKey="name:"+String(p.name||"").trim().toLowerCase(),idKey="place:"+p.id;if(seen.has(idKey)||seen.has(nameKey)){duplicates++;return;}seen.add(idKey);seen.add(nameKey);candidates.push(p);});
  if(!candidates.length){toast(duplicates?"Those places are already in this itinerary.":"No destinations were selected.");return;}
- // Replace only untouched generic sightseeing placeholders; preserve meals, buffers and custom stops.
+ // Replace untouched generic sightseeing slots, but keep meal times, travel buffers and custom stops.
  day.stops=day.stops.filter(s=>!(replaceableSightseeingSlots.has(s.name)&&!s.placeId));
  let clock=toMinutes($("pickerStartTime").value||suggestedStartTime(t,dayIndex)),added=0,tooLate=0;
  candidates.forEach(p=>{
@@ -204,7 +206,7 @@ function addPickedPlaces(){
   const type=tag.includes("offbeat")?"offbeat":tag.includes("famous")?"famous":tag.includes("food")?"food":tag.includes("local")?"local":"hidden-gem";
   const crowdText=(p.crowd||"").toLowerCase();
   const crowd=crowdText.includes("quiet")||crowdText.includes("less crowded")?"low":crowdText.includes("popular")||crowdText.includes("crowded")?"high":crowdText.includes("unknown")?"unknown":"medium";
-  // Avoid overlapping existing meals, travel buffers or planned stops.
+  // Move the time forward if it overlaps a meal, buffer or already planned stop.
   let guard=0,conflict=true;
   while(conflict&&clock<=1320&&guard<40){
    conflict=false;guard++;
@@ -215,24 +217,25 @@ function addPickedPlaces(){
    }
   }
   if(clock>1320||conflict){tooLate++;return;}
-  const state=p.state||"Karnataka";
+  const state=p.state||"Karnataka",routeOrder=route.placeIds.indexOf(p.id);
   const notes=(p.overview||"")+(p.bestTime?"\\nBest time: "+p.bestTime:"");
-  const stop={id:uid(),placeId:p.id,name:p.name,location:p.mapQuery||p.name,time:fromMinutes(clock),duration,type,crowd,notes,done:false,order:day.stops.length,placeGroup:p.group||"",placeState:state};
+  const stop={id:uid(),placeId:p.id,routeId:route.id,routeOrder,name:p.name,location:p.mapQuery||p.name,time:fromMinutes(clock),duration,type,crowd,notes,done:false,order:day.stops.length,placeGroup:p.group||"",placeState:state};
   day.stops.push(stop);added++;clock+=duration+15;
  });
  if(!added){toast(duplicates?"Those places are already in this itinerary.":tooLate?"These places won't fit before 10 PM. Choose an earlier start time or another day.":"No destinations were added.");return;}
+ day.routeId=route.id;
  day.stops.sort((a,b)=>(a.time||"99:99").localeCompare(b.time||"99:99"));
  activeDay=dayIndex;
  $("placePickerDialog").close();pickedPlaceIds.clear();pickedPlaceOrder=[];
  save();
- toast("Added "+added+" place"+(added===1?"":"s")+" to Day "+(dayIndex+1)+(duplicates?" · "+duplicates+" duplicate"+(duplicates===1?"":"s")+" skipped":"")+(tooLate?" · "+tooLate+" didn't fit before 10 PM; choose another day for those":""));
+ toast("Added "+added+" place"+(added===1?"":"s")+" on "+route.title+" to Day "+(dayIndex+1)+(duplicates?" · "+duplicates+" duplicate"+(duplicates===1?"":"s")+" skipped":"")+(tooLate?" · "+tooLate+" didn't fit before 10 PM":""));
 }
 
 $("pickPlacesBtn").onclick=openPlacePicker;
 $("closePicker").onclick=$("cancelPlacePicker").onclick=()=>$("placePickerDialog").close();
 $("pickerSearch").addEventListener("input",renderPickerPlaces);
-$("pickerArea").addEventListener("change",renderPickerPlaces);
-$("pickerDay").addEventListener("change",()=>{const t=active();if(t)$("pickerStartTime").value=suggestedStartTime(t,Number($("pickerDay").value)||0);});
+$("pickerArea").addEventListener("change",handlePickerCircuitChange);
+$("pickerDay").addEventListener("change",()=>{pickedPlaceIds.clear();pickedPlaceOrder=[];configurePickerForDay();renderPickerPlaces();});
 $("pickerPlaceList").addEventListener("change",e=>{const input=e.target.closest(".picker-choice");if(!input)return;const id=input.value;if(input.checked){if(!pickedPlaceIds.has(id)){pickedPlaceIds.add(id);pickedPlaceOrder.push(id);}}else{pickedPlaceIds.delete(id);pickedPlaceOrder=pickedPlaceOrder.filter(x=>x!==id);}const row=input.closest(".picker-place");if(row)row.classList.toggle("selected",input.checked);updatePickerSelectionUI();});
 $("addSelectedPlaces").onclick=addPickedPlaces;
 $("newTrip").onclick=$("newTrip2").onclick=$("emptyCreate").onclick=openCreate;$("cancelCreate").onclick=()=>$("tripDialog").close();$("createTripSubmit").onclick=e=>{e.preventDefault();if($("newName").value.trim()&&$("newDestination").value.trim())createTrip();};$("tripForm").addEventListener("submit",e=>{e.preventDefault();createTrip();});$("stopForm").addEventListener("submit",e=>{e.preventDefault();saveStop();});
