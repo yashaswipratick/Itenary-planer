@@ -13,6 +13,40 @@ function catalogPlaceForStop(stop){
  if(aliases[name])return placeById(aliases[name]);
  return (catalog.places||[]).find(p=>clean(p.name)===name)||null;
 }
+function stopIdentityKeys(value){
+ const item=value||{};
+ const place=(item.id&&item.name)?item:(item.placeId?placeById(item.placeId):catalogPlaceForStop(item));
+ const id=(place&&place.id)||item.placeId||"";
+ const name=(place&&place.name)||item.name||"";
+ const clean=String(name).toLowerCase().replace(/[^a-z0-9]+/g," ").trim();
+ return [...(id?["place:"+id]:[]),...(clean?["name:"+clean]:[])];
+}
+function isCatalogDestinationStop(stop){
+ return Boolean(stop&&(stop.placeId?placeById(stop.placeId)||catalogPlaceForStop(stop):catalogPlaceForStop(stop)));
+}
+function collectPreviouslyVisitedDestinationKeys(trip,dayIndex){
+ const keys=new Set();
+ for(let i=0;i<dayIndex;i++){
+  for(const stop of ((trip.days[i]&&trip.days[i].stops)||[])){
+   if(!stop.done||!isCatalogDestinationStop(stop))continue;
+   stopIdentityKeys(stop).forEach(key=>keys.add(key));
+  }
+ }
+ return keys;
+}
+function pruneVisitedDestinationsFromLaterDays(trip){
+ let changed=false;
+ const visited=new Set();
+ for(const day of (trip.days||[])){
+  const before=(day.stops||[]).length;
+  day.stops=(day.stops||[]).filter(stop=>!isCatalogDestinationStop(stop)||!stopIdentityKeys(stop).some(key=>visited.has(key)));
+  if(day.stops.length!==before)changed=true;
+  for(const stop of day.stops){
+   if(stop.done&&isCatalogDestinationStop(stop))stopIdentityKeys(stop).forEach(key=>visited.add(key));
+  }
+ }
+ return changed;
+}
 function normalizeSavedPlaceStops(){
  let changed=false;
  for(const trip of trips){
@@ -49,7 +83,7 @@ function normalizeSavedPlaceStops(){
  if(changed){try{localStorage.setItem(KEY,JSON.stringify(trips));}catch(e){}}
 }
 function load(){try{trips=JSON.parse(localStorage.getItem(KEY)||"[]");if(!Array.isArray(trips))trips=[];}catch{trips=[];}if(!trips.length){const t=makeTrip({name:"A slow weekend in Coorg",destination:"Coorg, Karnataka",origin:"Bengaluru",days:1});trips.push(t);activeId=t.id;}else activeId=trips[0].id;
-const hash=location.hash.slice(1);if(hash.startsWith("trip=")){try{const shared=JSON.parse(decodeURIComponent(escape(atob(hash.slice(5)))));if(shared&&shared.name&&Array.isArray(shared.days)){shared.id=uid();trips.unshift(shared);activeId=shared.id;history.replaceState(null,"",location.pathname+location.search);save();toast("Shared itinerary imported as a new copy");}}catch{toast("This share link could not be imported");}}normalizeSavedPlaceStops();removeStarterTemplatePlaceholders();render();}
+const hash=location.hash.slice(1);if(hash.startsWith("trip=")){try{const shared=JSON.parse(decodeURIComponent(escape(atob(hash.slice(5)))));if(shared&&shared.name&&Array.isArray(shared.days)){shared.id=uid();trips.unshift(shared);activeId=shared.id;history.replaceState(null,"",location.pathname+location.search);save();toast("Shared itinerary imported as a new copy");}}catch{toast("This share link could not be imported");}}normalizeSavedPlaceStops();removeStarterTemplatePlaceholders();let visitedPruned=false;for(const trip of trips){if(pruneVisitedDestinationsFromLaterDays(trip))visitedPruned=true;}if(visitedPruned){try{localStorage.setItem(KEY,JSON.stringify(trips));}catch(e){}}render();}
 function active(){return trips.find(t=>t.id===activeId)||trips[0];}
 function escapeHtml(s=""){return String(s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));}
 function formatDate(date,offset){if(!date)return"";const d=new Date(date+"T12:00:00");d.setDate(d.getDate()+offset);return d.toLocaleDateString(undefined,{weekday:"short",month:"short",day:"numeric"});}
@@ -239,9 +273,13 @@ function syncPickerSourceLocation(){
  }catch(e){$("saveStatus").textContent="Could not save locally";}
 }
 function pickerFilteredPlaces(){
- const q=$("pickerSearch").value.trim().toLowerCase(),route=currentPickerRoute();
+ const q=$("pickerSearch").value.trim().toLowerCase(),route=currentPickerRoute(),selected=pickerDay();
  if(!route)return [];
- return route.placeIds.map(id=>placeById(id)).filter(Boolean).filter(p=>!q||[p.name,...(p.aliases||[]),p.city,p.group,p.tag,p.overview,p.why,p.state||"Karnataka"].join(" ").toLowerCase().includes(q));
+ const visited=selected?collectPreviouslyVisitedDestinationKeys(selected.trip,selected.index):new Set();
+ return route.placeIds.map(id=>placeById(id)).filter(Boolean).filter(p=>{
+  if(stopIdentityKeys(p).some(key=>visited.has(key)))return false;
+  return !q||[p.name,...(p.aliases||[]),p.city,p.group,p.tag,p.overview,p.why,p.state||"Karnataka"].join(" ").toLowerCase().includes(q);
+ });
 }
 function updatePickerSelectionUI(){
  const count=pickedPlaceIds.size,route=currentPickerRoute();
@@ -292,11 +330,12 @@ function addPickedPlaces(){
  const ids=pickedPlaceOrder.filter(id=>route.placeIds.includes(id));
  if(!ids.length){toast("Select at least one destination from this route.");return;}
  // Prevent duplicates within this day, while allowing the same destination on another day.
- const seen=new Set(day.stops.flatMap(s=>[s.placeId?"place:"+s.placeId:"","name:"+String(s.name||"").trim().toLowerCase()]).filter(Boolean));
+ const seen=new Set(day.stops.flatMap(s=>stopIdentityKeys(s)).filter(Boolean));
+ const previouslyVisited=collectPreviouslyVisitedDestinationKeys(t,dayIndex);
  const duration=Math.max(15,Math.min(600,Number($("pickerDuration").value)||route.defaultDuration||60));
- const candidates=[];let duplicates=0;
- ids.forEach(id=>{const p=placeById(id);if(!p)return;const nameKey="name:"+String(p.name||"").trim().toLowerCase(),idKey="place:"+p.id;if(seen.has(idKey)||seen.has(nameKey)){duplicates++;return;}seen.add(idKey);seen.add(nameKey);candidates.push(p);});
- if(!candidates.length){toast(duplicates?"Those places are already in this itinerary.":"No destinations were selected.");return;}
+ const candidates=[];let duplicates=0,alreadyVisited=0;
+ ids.forEach(id=>{const p=placeById(id);if(!p)return;const keys=stopIdentityKeys(p);if(keys.some(key=>previouslyVisited.has(key))){alreadyVisited++;return;}if(keys.some(key=>seen.has(key))){duplicates++;return;}keys.forEach(key=>seen.add(key));candidates.push(p);});
+ if(!candidates.length){toast(alreadyVisited?"Those destinations were already marked visited on an earlier day.":duplicates?"Those places are already in this day.":"No destinations were selected.");return;}
  // Replace untouched generic sightseeing slots, but keep meal times, travel buffers and custom stops.
  let clock=toMinutes($("pickerStartTime").value||suggestedStartTime(t,dayIndex)),added=0,tooLate=0;
  candidates.forEach(p=>{
@@ -326,7 +365,7 @@ function addPickedPlaces(){
  activeDay=dayIndex;
  $("placePickerDialog").close();pickedPlaceIds.clear();pickedPlaceOrder=[];
  save();
- toast("Added "+added+" place"+(added===1?"":"s")+" on "+route.title+" to Day "+(dayIndex+1)+(duplicates?" · "+duplicates+" duplicate"+(duplicates===1?"":"s")+" skipped":"")+(tooLate?" · "+tooLate+" didn't fit before 10 PM":""));
+ toast("Added "+added+" place"+(added===1?"":"s")+" on "+route.title+" to Day "+(dayIndex+1)+(alreadyVisited?" · "+alreadyVisited+" previously visited skipped":"")+(duplicates?" · "+duplicates+" duplicate"+(duplicates===1?"":"s")+" skipped":"")+(tooLate?" · "+tooLate+" didn't fit before 10 PM":""));
 }
 
 $("pickPlacesBtn").onclick=openPlacePicker;
@@ -341,7 +380,7 @@ $("newTrip").onclick=$("newTrip2").onclick=$("emptyCreate").onclick=openCreate;$
 ["tripName","destination","origin","startDate"].forEach(id=>$(id).addEventListener("change",syncFields));$("dayCount").onchange=syncFields;$("dayMap").onclick=mapDay;$("shareBtn").onclick=share;$("exportBtn").onclick=exportTrip;$("addStop").onclick=()=>editStop();$("addDayStop").onclick=()=>addSimple("famous");$("addMeal").onclick=()=>addSimple("food");$("deleteStop").onclick=removeStop;
 $("allTrips").onclick=()=>{const t=active();if(t){$("pageTitle").textContent=t.name||"My itineraries";$("workspace").classList.remove("hidden");}};
 $("dayTabs").addEventListener("click",e=>{const b=e.target.closest("[data-day]");if(b){activeDay=Number(b.dataset.day);render();}});
-$("stopList").addEventListener("click",e=>{const b=e.target.closest("button");if(!b)return;if(b.dataset.add){addSimple("famous");return;}const id=b.dataset.id,action=b.dataset.action;if(!action)return;const t=active(),list=t.days[activeDay].stops,s=list.find(x=>x.id===id);if(!s)return;if(action==="toggle"){s.done=!s.done;save();}else if(action==="edit")editStop(id);else if(action==="move"){const i=list.indexOf(s);if(i<list.length-1){[list[i],list[i+1]]=[list[i+1],list[i]];save();}}else if(action==="remove"){if(window.confirm("Remove this stop from Day "+(activeDay+1)+"?")){t.days[activeDay].stops=list.filter(x=>x.id!==id);save();toast("Destination removed from itinerary");}}});
+$("stopList").addEventListener("click",e=>{const b=e.target.closest("button");if(!b)return;if(b.dataset.add){addSimple("famous");return;}const id=b.dataset.id,action=b.dataset.action;if(!action)return;const t=active(),list=t.days[activeDay].stops,s=list.find(x=>x.id===id);if(!s)return;if(action==="toggle"){s.done=!s.done;const removed=pruneVisitedDestinationsFromLaterDays(t);save();toast(s.done?(removed?"Marked visited · removed from later days":"Marked visited"):"Marked not visited");}else if(action==="edit")editStop(id);else if(action==="move"){const i=list.indexOf(s);if(i<list.length-1){[list[i],list[i+1]]=[list[i+1],list[i]];save();}}else if(action==="remove"){if(window.confirm("Remove this stop from Day "+(activeDay+1)+"?")){t.days[activeDay].stops=list.filter(x=>x.id!==id);save();toast("Destination removed from itinerary");}}});
 $("tripList").addEventListener("click",e=>{const b=e.target.closest("[data-trip]");if(b){activeId=b.dataset.trip;activeDay=0;render();}});window.addEventListener("hashchange",()=>{if(location.hash.startsWith("#trip=")){const was=activeId;try{const shared=JSON.parse(decodeURIComponent(escape(atob(location.hash.slice(6)))));if(shared.name&&Array.isArray(shared.days)){shared.id=uid();trips.unshift(shared);activeId=shared.id;activeDay=0;history.replaceState(null,"",location.pathname+location.search);save();toast("Shared trip opened as your own copy");}}catch{activeId=was;}}});
 load();
 })();
