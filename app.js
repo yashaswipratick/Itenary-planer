@@ -17,8 +17,24 @@ function starter(){return[
 ].map((x,i)=>({id:uid(),time:x[0],name:x[1],location:"",duration:x[3],type:x[2],crowd:x[4],notes:x[5],done:false,order:i}));}
 function makeTrip(data={}){let days=Number(data.days)||1;return{id:uid(),name:data.name||"My new adventure",destination:data.destination||"",origin:data.origin||"",startDate:data.startDate||"",days:Array.from({length:days},(_,i)=>({stops:data.template===false?[]:starter().map(s=>({...s,id:uid()}))})),created:Date.now()};}
 function save(){try{localStorage.setItem(KEY,JSON.stringify(trips));$("saveStatus").textContent="● All changes saved";}catch(e){$("saveStatus").textContent="Could not save locally";}render();}
+function fixHarangiStopLabels(){
+ let changed=false;
+ for(const trip of trips){
+  for(const day of (trip.days||[])){
+   for(const stop of (day.stops||[])){
+    if(stop.placeId!=="harangi-dam")continue;
+    const place=placeById("harangi-dam");
+    if(!place)continue;
+    if(stop.name==="Harangi Dam"||!stop.name){stop.name=place.name;changed=true;}
+    if(!stop.location||stop.location==="Harangi Dam Hudgur Kodagu"){stop.location=place.mapQuery||place.name;changed=true;}
+    if(stop.mapUrl!==place.mapUrl){stop.mapUrl=place.mapUrl||"";changed=true;}
+   }
+  }
+ }
+ if(changed){try{localStorage.setItem(KEY,JSON.stringify(trips));}catch(e){}}
+}
 function load(){try{trips=JSON.parse(localStorage.getItem(KEY)||"[]");if(!Array.isArray(trips))trips=[];}catch{trips=[];}if(!trips.length){const t=makeTrip({name:"A slow weekend in Coorg",destination:"Coorg, Karnataka",origin:"Bengaluru",days:1});trips.push(t);activeId=t.id;}else activeId=trips[0].id;
-const hash=location.hash.slice(1);if(hash.startsWith("trip=")){try{const shared=JSON.parse(decodeURIComponent(escape(atob(hash.slice(5)))));if(shared&&shared.name&&Array.isArray(shared.days)){shared.id=uid();trips.unshift(shared);activeId=shared.id;history.replaceState(null,"",location.pathname+location.search);save();toast("Shared itinerary imported as a new copy");}}catch{toast("This share link could not be imported");}}render();}
+const hash=location.hash.slice(1);if(hash.startsWith("trip=")){try{const shared=JSON.parse(decodeURIComponent(escape(atob(hash.slice(5)))));if(shared&&shared.name&&Array.isArray(shared.days)){shared.id=uid();trips.unshift(shared);activeId=shared.id;history.replaceState(null,"",location.pathname+location.search);save();toast("Shared itinerary imported as a new copy");}}catch{toast("This share link could not be imported");}}fixHarangiStopLabels();render();}
 function active(){return trips.find(t=>t.id===activeId)||trips[0];}
 function escapeHtml(s=""){return String(s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));}
 function formatDate(date,offset){if(!date)return"";const d=new Date(date+"T12:00:00");d.setDate(d.getDate()+offset);return d.toLocaleDateString(undefined,{weekday:"short",month:"short",day:"numeric"});}
@@ -29,7 +45,7 @@ function render(){const t=active();$("tripCount").textContent=trips.length;$("tr
 const p=progress(t);$("crumb").textContent=t.name||"My itinerary";$("pageTitle").textContent=t.name||"Plan a trip worth remembering.";$("statDestination").textContent=t.destination||"Add destination";$("statDays").textContent=t.days.length+" "+(t.days.length===1?"day":"days");$("statVisited").textContent=p.done+" / "+p.total;$("statProgress").textContent=p.pct+"%";$("progressBar").style.width=p.pct+"%";setVal("tripName",t.name);setVal("destination",t.destination);setVal("origin",t.origin);setVal("startDate",t.startDate);setVal("dayCount",t.days.length);activeDay=Math.min(activeDay,t.days.length-1);$("dayTabs").innerHTML=t.days.map((d,i)=>'<button class="day-tab '+(i===activeDay?'active':'')+'" data-day="'+i+'">Day '+(i+1)+'</button>').join("");const day=t.days[activeDay];$("dayTitle").textContent="Day "+(activeDay+1);$("dayDate").textContent=formatDate(t.startDate,activeDay);const done=day.stops.filter(s=>s.done).length;$("dayProgress").textContent=done+" / "+day.stops.length+" done";const currentRoute=routeForDay(day);const routeLabel=$("dayRouteLabel");if(currentRoute){routeLabel.textContent="Route · "+currentRoute.title;routeLabel.classList.remove("hidden","route-warning");}else if(day.stops.some(s=>s.placeId)){routeLabel.textContent="⚠ Mixed routes · split this day";routeLabel.classList.remove("hidden");routeLabel.classList.add("route-warning");}else{routeLabel.textContent="";routeLabel.classList.add("hidden");routeLabel.classList.remove("route-warning");}$("stopList").innerHTML=day.stops.length?day.stops.map((s,i)=>renderStop(s,i)).join(""):'<div class="empty"><h2>A day with possibilities.</h2><p>Add the first place, meal or activity to start planning.</p><button class="primary" data-add="destination">＋ Add a stop</button></div>'; }
 function renderStop(s,i){
  const loc=s.location||s.name;
- const map="https://www.google.com/maps/search/?api=1&query="+encodeURIComponent(loc);
+ const map=s.mapUrl||"https://www.google.com/maps/search/?api=1&query="+encodeURIComponent(loc);
  const crowd=s.crowd||"unknown";
  const stateTag=s.done?'<span class="visit-state">✓ Already visited</span>':'<span class="planned-state">Planned</span>';
  const detailLink=s.placeId?'<a class="mini" href="place.html?id='+encodeURIComponent(s.placeId)+'" target="_blank" rel="noopener">↗ Place guide</a>':"";
@@ -50,7 +66,7 @@ const starterSlotNames=new Set(["Breakfast / coffee","Travel to first stop","Mai
 const replaceableSightseeingSlots=new Set(["Main attraction","Hidden gem nearby","Explore at an easy pace","Offbeat stop","Sunset / scenic stop"]);
 const ROUTE_CIRCUITS=[
  {id:"bylakuppe-nisargadhama",category:"East · Bylakuppe / Kushalnagar",title:"Golden Temple & Nisargadhama",direction:"Bylakuppe → Nisargadhama",defaultDuration:60,description:"A compact culture-and-river stop on the eastern approach. Harangi and Dubare are separate circuits to avoid adding opposite-side detours.",placeIds:["golden-temple","kaveri-nisargadhama"]},
- {id:"harangi-backwaters",category:"East · Harangi",title:"Harangi Dam & Elephant Camp",direction:"Harangi reservoir / backwaters",defaultDuration:60,description:"Keep the dam and adjacent tree park / elephant camp together. Do not add Golden Temple or Dubare to this day's route.",placeIds:["harangi-dam","harangi-elephant-camp-tree-park"]},
+ {id:"harangi-backwaters",category:"East · Harangi",title:"Harangi Reservoir & Elephant Camp",direction:"Harangi reservoir / backwaters",defaultDuration:60,description:"Keep the reservoir-side visit and adjacent tree park / elephant camp together. Do not add Golden Temple or Dubare to this day's route.",placeIds:["harangi-dam","harangi-elephant-camp-tree-park"]},
  {id:"dubare-camp",category:"East · Dubare",title:"Dubare Elephant Camp",direction:"Dubare / Kaveri river",defaultDuration:150,description:"Treat Dubare as its own scheduled visit because the camp activity and river access can take several hours.",placeIds:["dubare-elephant-camp"]},
  {id:"chiklihole-reservoir",category:"East · Reservoirs",title:"Chiklihole Reservoir",direction:"Chiklihole countryside",defaultDuration:60,description:"A standalone offbeat reservoir stop. Keep it separate unless you have checked the exact road route from your stay.",placeIds:["chiklihole-reservoir"]},
  {id:"madikeri-town",category:"Central · Madikeri",title:"Madikeri town heritage loop",direction:"Madikeri town centre",defaultDuration:45,description:"Town-side heritage sights grouped together so you can park once and minimise driving between stops.",placeIds:["madikeri-fort","omkareshwara-temple","rajas-tomb","rajas-seat"]},
@@ -228,7 +244,7 @@ function addPickedPlaces(){
   if(clock>1320||conflict){tooLate++;return;}
   const state=p.state||"Karnataka",routeOrder=route.placeIds.indexOf(p.id);
   const notes=(p.overview||"")+(p.bestTime?"\\nBest time: "+p.bestTime:"");
-  const stop={id:uid(),placeId:p.id,routeId:route.id,routeOrder,name:p.name,location:p.mapQuery||p.name,time:fromMinutes(clock),duration,type,crowd,notes,done:false,order:day.stops.length,placeGroup:p.group||"",placeState:state};
+  const stop={id:uid(),placeId:p.id,routeId:route.id,routeOrder,name:p.name,location:p.mapQuery||p.name,mapUrl:p.mapUrl||"",time:fromMinutes(clock),duration,type,crowd,notes,done:false,order:day.stops.length,placeGroup:p.group||"",placeState:state};
   day.stops.push(stop);added++;clock+=duration+15;
  });
  if(!added){toast(duplicates?"Those places are already in this itinerary.":tooLate?"These places won't fit before 10 PM. Choose an earlier start time or another day.":"No destinations were added.");return;}
