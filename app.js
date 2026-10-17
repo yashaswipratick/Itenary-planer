@@ -91,34 +91,85 @@ function toMinutes(clock){const parts=String(clock||"09:00").split(":").map(Numb
 function fromMinutes(value){const n=Math.max(0,value)%1440;return String(Math.floor(n/60)).padStart(2,"0")+":"+String(n%60).padStart(2,"0");}
 function suggestedStartTime(t,dayIndex){const stops=(t.days[dayIndex]&&t.days[dayIndex].stops)||[];const real=stops.filter(s=>!starterSlotNames.has(s.name));if(!real.length)return "09:00";let last=0;real.forEach(s=>{if(/^\d{2}:\d{2}$/.test(s.time||""))last=Math.max(last,toMinutes(s.time)+(Number(s.duration)||60));});const suggested=last?last+15:540;return fromMinutes(suggested>1320?540:suggested);}
 function populatePickerAreas(){
- const select=$("pickerArea");
- const groups=[...new Set((catalog.places||[]).map(p=>p.group).filter(Boolean))];
- select.innerHTML='<option value="all">All listed destinations</option><option value="Coorg">Coorg · Karnataka only</option><option value="kerala-border">Kerala border escapes only</option>'+groups.map(g=>'<option value="group:'+escapeHtml(g)+'">'+escapeHtml(g)+'</option>').join("");
+ const select=$("pickerArea"),categories=[...new Set(ROUTE_CIRCUITS.map(r=>r.category))];
+ select.innerHTML='<option value="">Choose a route circuit…</option>'+categories.map(category=>'<optgroup label="'+escapeHtml(category)+'">'+ROUTE_CIRCUITS.filter(r=>r.category===category).map(r=>'<option value="'+escapeHtml(r.id)+'">'+escapeHtml(r.title)+'</option>').join("")+'</optgroup>').join("");
+}
+function pickerDay(){
+ const t=active();if(!t)return null;
+ const idx=Math.max(0,Math.min(t.days.length-1,Number($("pickerDay").value)||0));
+ return {trip:t,index:idx,day:t.days[idx]};
+}
+function currentPickerRoute(){return routeById($("pickerArea").value);}
+function routeIsCompatibleWithSelectedDay(route){
+ const selected=pickerDay();
+ return !!selected&&circuitCompatible(selected.day,route);
+}
+function updatePickerRouteSummary(){
+ const route=currentPickerRoute(),selected=pickerDay();
+ const panel=$("pickerRouteSummary");
+ if(!selected){panel.innerHTML='<p class="route-empty">Select an itinerary day first.</p>';return;}
+ const existing=(selected.day.stops||[]).filter(s=>s.placeId);
+ if(!route){
+  panel.innerHTML='<div class="route-summary-empty"><span class="route-summary-icon">↗</span><div><b>Choose a route circuit</b><p>The picker will show only the stops that belong on that route, in suggested travel order. Farther areas stay in separate circuits.</p></div></div>';
+  return;
+ }
+ const incompatible=existing.filter(s=>!route.placeIds.includes(s.placeId));
+ const conflictMessage=incompatible.length?'<div class="route-conflict"><b>Different route already planned on this day</b><p>'+escapeHtml(incompatible.map(s=>s.name).join(", "))+' '+(incompatible.length===1?"is":"are")+' not part of this circuit. To avoid backtracking, move or remove '+(incompatible.length===1?"this stop":"these stops")+' or choose another day.</p></div>':"";
+ const chips=route.placeIds.map((id,i)=>{const p=placeById(id);return p?'<span class="route-stop-chip"><i>'+(i+1)+'</i>'+escapeHtml(p.name)+'</span>':"";}).join("");
+ const lock=(selected.day.routeId===route.id)?'<span class="route-locked-pill">Day '+(selected.index+1)+' locked to this circuit</span>':"";
+ panel.innerHTML='<div class="route-summary-top"><div><p class="route-summary-kicker">CURATED DAY CIRCUIT</p><h3>'+escapeHtml(route.title)+'</h3><p class="route-direction">'+escapeHtml(route.direction)+'</p></div>'+lock+'</div><p class="route-summary-description">'+escapeHtml(route.description)+'</p><div class="route-stop-sequence"><span class="route-sequence-label">SUGGESTED ORDER</span><div class="route-stop-chips">'+chips+'</div></div>'+conflictMessage;
+}
+function configurePickerForDay(){
+ const selected=pickerDay();if(!selected)return;
+ const day=selected.day,existing=(day.stops||[]).filter(s=>s.placeId);
+ const route=routeForDay(day);
+ let routeId=route?route.id:"";
+ if(!routeId&&!existing.length)routeId=routeDefaultForTrip(selected.trip);
+ $("pickerArea").value=routeId;
+ $("pickerArea").disabled=!!(day.routeId&&routeById(day.routeId));
+ $("pickerStartTime").value=suggestedStartTime(selected.trip,selected.index);
+ const selectedRoute=routeById(routeId);
+ $("pickerDuration").value=String(selectedRoute?selectedRoute.defaultDuration:60);
+ updatePickerRouteSummary();
 }
 function pickerFilteredPlaces(){
- const q=$("pickerSearch").value.trim().toLowerCase(),area=$("pickerArea").value||"all";
- return (catalog.places||[]).filter(p=>{
-  const state=p.state||"Karnataka",group=p.group||"";
-  if(area==="Coorg"&&state!=="Karnataka")return false;
-  if(area==="kerala-border"&&p.region!=="kerala-border")return false;
-  if(area.startsWith("group:")&&group!==area.slice(6))return false;
-  return !q||[p.name,p.city,p.group,p.tag,p.overview,p.why,state].join(" ").toLowerCase().includes(q);
- });
+ const q=$("pickerSearch").value.trim().toLowerCase(),route=currentPickerRoute();
+ if(!route||!routeIsCompatibleWithSelectedDay(route))return [];
+ return route.placeIds.map(id=>placeById(id)).filter(Boolean).filter(p=>!q||[p.name,p.city,p.group,p.tag,p.overview,p.why,p.state||"Karnataka"].join(" ").toLowerCase().includes(q));
 }
 function updatePickerSelectionUI(){
- $("pickerSelectionCount").textContent=pickedPlaceIds.size+" selected";
- $("addSelectedPlaces").disabled=pickedPlaceIds.size===0;
- $("addSelectedPlaces").textContent=pickedPlaceIds.size?"＋ Add "+pickedPlaceIds.size+" selected place"+(pickedPlaceIds.size===1?"":"s"):"＋ Add selected places";
+ const count=pickedPlaceIds.size,route=currentPickerRoute(),ok=!!route&&routeIsCompatibleWithSelectedDay(route);
+ $("pickerSelectionCount").textContent=count+" selected";
+ $("addSelectedPlaces").disabled=count===0||!ok;
+ $("addSelectedPlaces").textContent=count?"＋ Add "+count+" selected place"+(count===1?"":"s"):"＋ Add selected places";
+ if(route&&!ok)$("pickerHint").textContent="This day already contains places outside this circuit. Move them to another day or remove them before adding more stops.";
+ else $("pickerHint").textContent="This day stays on one circuit. Places are listed in the recommended route order; choose a different day for another direction. Existing places in this itinerary won't be duplicated.";
 }
 function renderPickerPlaces(){
- const groups={};
- pickerFilteredPlaces().forEach(p=>(groups[p.group||"Other places"]??=[]).push(p));
- const html=Object.keys(groups).sort((a,b)=>a.localeCompare(b)).map(group=>'<section class="picker-area-group"><h3>'+escapeHtml(group)+' <span>'+groups[group].length+'</span></h3>'+groups[group].map(p=>{
+ const route=currentPickerRoute(),places=pickerFilteredPlaces();
+ const html=places.map(p=>{
   const selected=pickedPlaceIds.has(p.id),state=p.state||"Karnataka",tag=(p.tag||"").toUpperCase(),offbeat=tag.includes("OFFBEAT");
-  return '<article class="picker-place '+(selected?'selected':'')+'"><label class="picker-choice-label"><input class="picker-choice" type="checkbox" value="'+escapeHtml(p.id)+'" '+(selected?'checked':'')+'><span class="picker-checkmark" aria-hidden="true"></span></label><div class="picker-place-copy"><div class="picker-place-heading"><b>'+escapeHtml(p.name)+'</b>'+(offbeat?'<span class="place-badge offbeat">OFFBEAT</span>':'')+(p.region==="kerala-border"?'<span class="place-badge border-badge">KERALA</span>':"")+'</div><p>'+escapeHtml(p.city)+', '+escapeHtml(state)+' · '+escapeHtml(p.tag||"Place")+'</p><small>'+escapeHtml(p.overview||"Explore this destination.")+'</small></div><a class="picker-details-link" href="place.html?id='+encodeURIComponent(p.id)+'" target="_blank" rel="noopener">Details ↗</a></article>';
- }).join("")+'</section>').join("");
- $("pickerPlaceList").innerHTML=html||'<div class="picker-no-results"><b>No destinations match your search</b><p>Try a different keyword or choose all areas.</p></div>';
+  const stopNumber=route.placeIds.indexOf(p.id)+1;
+  return '<article class="picker-place '+(selected?'selected':'')+'"><label class="picker-choice-label"><input class="picker-choice" type="checkbox" value="'+escapeHtml(p.id)+'" '+(selected?'checked':'')+'><span class="picker-checkmark" aria-hidden="true"></span></label><div class="picker-place-copy"><div class="picker-place-heading"><span class="picker-stop-number">'+String(stopNumber).padStart(2,"0")+'</span><b>'+escapeHtml(p.name)+'</b>'+(offbeat?'<span class="place-badge offbeat">OFFBEAT</span>':'')+(p.region==="kerala-border"?'<span class="place-badge border-badge">KERALA</span>':"")+'</div><p>'+escapeHtml(p.city)+', '+escapeHtml(state)+' · '+escapeHtml(p.tag||"Place")+'</p><small>'+escapeHtml(p.overview||"Explore this destination.")+'</small></div><a class="picker-details-link" href="place.html?id='+encodeURIComponent(p.id)+'" target="_blank" rel="noopener">Details ↗</a></article>';
+ }).join("");
+ $("pickerPlaceList").innerHTML=html||'<div class="picker-no-results"><b>'+(route?"No places match your search":"Choose a route to see destinations")+'</b><p>'+(route?"Try a different keyword within this route circuit.":"The planner will keep each day to one circuit to reduce cross-district detours.")+'</p></div>';
+ updatePickerRouteSummary();
  updatePickerSelectionUI();
+}
+function handlePickerCircuitChange(){
+ const selected=pickerDay();if(!selected)return;
+ if(selected.day.routeId&&routeById(selected.day.routeId)){
+  $("pickerArea").value=selected.day.routeId;
+  toast("This day is already assigned to "+routeById(selected.day.routeId).title+". Use another day for a different route.");
+  return;
+ }
+ pickedPlaceIds.clear();pickedPlaceOrder=[];
+ const route=currentPickerRoute();
+ if(route&&!routeIsCompatibleWithSelectedDay(route)&&selected.day.stops.some(s=>s.placeId)){
+  toast("This day already has places from a different route. Split them across days to avoid backtracking.");
+ }
+ if(route)$("pickerDuration").value=String(route.defaultDuration);
+ renderPickerPlaces();
 }
 function openPlacePicker(){
  const t=active();if(!t){toast("Create an itinerary first");return;}
