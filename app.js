@@ -159,6 +159,7 @@ const ROUTE_CIRCUITS=[
  {id:"kerala-alakapuri",category:"Kerala border · Waterfalls",title:"Alakapuri Waterfalls",direction:"Kanjirakolly / Alakapuri",defaultDuration:90,description:"A waterfall in Kannur district, Kerala, not Kodagu. Local tourism information places Sasipara viewpoint nearby; check opening and weather before leaving.",placeIds:["alakapuri-waterfalls"]},
  {id:"kerala-ezharakund",category:"Kerala border · Waterfalls",title:"Ezharakund Waterfalls",direction:"Kudianmala / Vellad approach",defaultDuration:120,description:"A multi-level waterfall in Kannur district, Kerala. Allow time for the approach walk and keep to designated paths; don't combine it with other border pins unless route distance is verified.",placeIds:["ezharakund-waterfalls"]}
 ];
+ROUTE_CIRCUITS.unshift({id:"all-destinations",category:"All destinations",title:"All destinations",direction:"Browse the full destination catalogue",defaultDuration:60,description:"Browse every destination in the catalogue, regardless of area or circuit. Use search to find a place such as Raja’s Seat or Raja’s Tomb, and check only the places you want to add.",placeIds:[...new Set((catalog.places||[]).map(p=>p.id).filter(Boolean))]});
 const routeById=id=>ROUTE_CIRCUITS.find(r=>r.id===id)||null;
 const placeById=id=>(catalog.places||[]).find(p=>p.id===id)||null;
 function routeForDay(day){
@@ -196,7 +197,11 @@ function updatePickerRouteSummary(){
  if(!selected){panel.innerHTML='<p class="route-empty">Select an itinerary day first.</p>';return;}
  const existing=(selected.day.stops||[]).filter(s=>s.placeId);
  if(!route){
-  panel.innerHTML='<div class="route-summary-empty"><span class="route-summary-icon">↗</span><div><b>Choose an area or circuit</b><p>Select one of the listed regional groups, then choose the destinations you want to add. No starting location is required.</p></div></div>';
+  panel.innerHTML='<div class="route-summary-empty"><span class="route-summary-icon">↗</span><div><b>Choose an area or circuit</b><p>Select a group or choose All destinations to browse the full catalogue.</p></div></div>';
+  return;
+ }
+ if(route.id==="all-destinations"){
+  panel.innerHTML='<div class="route-summary-top"><div><p class="route-summary-kicker">FULL CATALOGUE</p><h3>All destinations</h3><p class="route-direction">'+(catalog.places||[]).length+' destinations available across every listed area</p></div></div><p class="route-summary-description">Browse the complete catalogue in one list, including Raja’s Seat and Raja’s Tomb. Use search to find a place, select destinations in the order you want, then add them to your day.</p>';
   return;
  }
  const incompatible=existing.filter(s=>!route.placeIds.includes(s.placeId));
@@ -210,7 +215,8 @@ function configurePickerForDay(){
  const selected=pickerDay();if(!selected)return;
  const day=selected.day;
  pickerSourceDayIndex=selected.index;
- const route=routeById(day.routeId)||routeForDay(day);
+ // Open with the full catalogue visible so no destination appears missing.
+ const route=routeById("all-destinations");
  const routeId=route?route.id:"";
  $("pickerArea").value=routeId;
  $("pickerArea").disabled=false;
@@ -312,7 +318,7 @@ function addPickedPlaces(){
   day.stops.push(stop);added++;clock+=duration+15;
  });
  if(!added){toast(duplicates?"Those places are already in this itinerary.":tooLate?"These places won't fit before 10 PM. Choose an earlier start time or another day.":"No destinations were added.");return;}
- day.routeId=route.id;
+ if(route.id==="all-destinations")delete day.routeId;else day.routeId=route.id;
  day.stops.sort((a,b)=>(a.time||"99:99").localeCompare(b.time||"99:99"));
  activeDay=dayIndex;
  $("placePickerDialog").close();pickedPlaceIds.clear();pickedPlaceOrder=[];
