@@ -13,6 +13,8 @@ window.ROAMPLANDATA = {
     { value: "Kakkabe / Virajpet", label: "Kakkabe & Virajpet" },
     { value: "Kutta", label: "Kutta & Nagarahole" },
     { value: "Galibeedu", label: "Galibeedu countryside" },
+    { value: "Ammathi / Bilugunda", label: "Ammathi & Bilugunda" },
+    { value: "Suntikoppa / 7th Hosakote", label: "Suntikoppa & 7th Hosakote" },
     { value: "Kerala Border", label: "Kerala border escapes — all" },
     { value: "Ullikkal", label: "Ullikkal — Kalanki" },
     { value: "Kanjirakolly", label: "Kanjirakolly — Alakapuri Falls" },
@@ -48,8 +50,26 @@ window.ROAMPLANDATA = {
       wikiTitle:"Nisargadhama", nearby:["golden-temple","dubare-elephant-camp","harangi-dam","chiklihole-reservoir"]
     },
     {
+      id:"coorg-hanging-bridge", name:"Coorg Hanging Bridge", city:"Kushalnagar", group:"Kushalnagar & Bylakuppe",
+      tag:"Scenic · River bridge", crowd:"Crowd varies", duration:"15–30 min", mapQuery:"Coorg Hanging Bridge, CWPF+RWR, Basavanahalli, Karnataka 571234",
+      overview:"A local hanging bridge across the Cauvery around Basavanahalli, near Kushalnagar. Treat it as a short riverside stop when access is open.",
+      why:"A brief stop for river scenery around the Nisargadhama and Kushalnagar area.",
+      bestTime:"Daylight hours; avoid heavy rain and high-water conditions.",
+      notes:"Confirm the precise pin, public access and whether crossing is currently allowed before visiting. Do not assume the bridge is always open or safe to cross.",
+      wikiTitle:"", nearby:["kaveri-nisargadhama","coorg-adventure-park","greenway-coffee-island"]
+    },
+    {
+      id:"coorg-adventure-park", name:"Coorg Adventure Park", city:"Kushalnagar", group:"Kushalnagar & Bylakuppe",
+      tag:"Adventure · Family activity", crowd:"Crowd varies", duration:"60–120 min", mapQuery:"Coorg Adventure Park, BM Road near Nisargadhama, Baichanahalli, Karnataka 571234",
+      overview:"An adventure-activity stop near the Nisargadhama tourist zone on BM Road at Baichanahalli. Available activities may vary by operator and season.",
+      why:"Useful for travellers looking to add an activity-focused stop near Kushalnagar rather than another long-distance sightseeing drive.",
+      bestTime:"Check opening hours and activity slots before setting out.",
+      notes:"Confirm current operating status, prices, age/height restrictions and safety requirements directly with the operator before planning around it.",
+      wikiTitle:"", nearby:["kaveri-nisargadhama","coorg-hanging-bridge","greenway-coffee-island"]
+    },
+    {
       id:"harangi-dam", name:"Harangi Reservoir, Kodagu", city:"Kushalnagar", group:"Kushalnagar & Bylakuppe",
-      tag:"Scenic · Reservoir", crowd:"Crowd varies by season", duration:"45–75 min", mapQuery:"Harangi Reservoir, Kodagu", mapUrl:"https://maps.app.goo.gl/s8oovQGBpjW2TNbL7",
+      tag:"Scenic · Reservoir", crowd:"Crowd varies by season", duration:"45–75 min", mapQuery:"Harangi Reservoir, Kodagu", mapUrl:"https://maps.app.goo.gl/s8oovQGBpjW2TNbL7", aliases:["Harangi Backwaters","Harangi Backwater Road Herur"],
       overview:"Harangi Reservoir is formed by the Harangi Dam across the Harangi River, a tributary of the Kaveri, near Hudgur in Kodagu. The reservoir and backwaters sit amid the green landscape east of Madikeri and are commonly visited as a short nature stop near Kushalnagar.",
       why:"Visit for the reservoir scenery and to understand the water landscape around the Kaveri basin. It pairs naturally with the nearby Harangi Elephant Camp & Tree Park.",
       bestTime:"Daylight hours. The surrounding views and safe access can change with reservoir operations, rain and water levels.",
@@ -73,6 +93,15 @@ window.ROAMPLANDATA = {
       bestTime:"Clear daylight hours; avoid approaching the water in heavy rain.",
       notes:"Road surfaces and facilities may be limited. Verify the route locally, carry water and leave before dark.",
       wikiTitle:"Chiklihole Reservoir", nearby:["dubare-elephant-camp","kaveri-nisargadhama","harangi-dam"]
+    },
+    {
+      id:"greenway-coffee-island", name:"Greenway Coffee Island Plantation Tour", city:"Suntikoppa / 7th Hosakote", group:"Kushalnagar & Bylakuppe",
+      tag:"Coffee · Plantation walk", crowd:"Popular; confirm booking", duration:"60–120 min", mapQuery:"Greenway Coffee Island plantation tour, Green way coffee island Nature walk, 7th Hosakote, Mysore Bangalore Road, Karnataka 571237",
+      overview:"A guided coffee-plantation and nature-walk experience in the 7th Hosakote / Suntikoppa area along the Mysore–Bangalore road. Tours may include an introduction to coffee and the plantation landscape.",
+      why:"A good activity stop for learning about Coorg's coffee-growing landscape rather than visiting only viewpoints and waterfalls.",
+      bestTime:"Book or confirm the tour time in advance; allow extra time for the guided walk.",
+      notes:"Confirm availability, start time, tour inclusions and current meeting point directly with Greenway Coffee Island before travelling.",
+      wikiTitle:"", nearby:["coorg-hanging-bridge","coorg-adventure-park","kaveri-nisargadhama"]
     },
     {
       id:"mandalpatti-viewpoint", name:"Mandalpatti Viewpoint", city:"Madikeri", group:"Madikeri & Central Coorg",
@@ -201,13 +230,22 @@ window.ROAMPLANDATA = {
       wikiTitle:"Mallalli Falls", nearby:["honnamana-kere"]
     },
     {
-      id:"chelavara-falls", name:"Chelavara Falls", city:"Kakkabe / Virajpet", group:"Kakkabe & Virajpet",
-      tag:"OFFBEAT · Waterfall", crowd:"Crowd varies", duration:"45–75 min plus drive", mapQuery:"Chelavara Falls Kodagu",
-      overview:"A waterfall near Cheyyandane in Kodagu, surrounded by dense greenery. It is often included in countryside routes around the Kakkabe and Virajpet side.",
+      id:"chelavara-falls", name:"Chelavara Waterfalls", city:"Kakkabe / Virajpet", group:"Kakkabe & Virajpet",
+      tag:"OFFBEAT · Waterfall", crowd:"Crowd varies", duration:"45–75 min plus drive", mapQuery:"Chelavara Waterfalls, 6M4F+F9X, Cheyyandane village, Chelavara, Karnataka 571212",
+      overview:"A waterfall near Cheyyandane village in Kodagu, surrounded by dense greenery. This entry uses the plus code and address supplied by the user; access can vary with rainfall and local conditions.",
       why:"A worthwhile alternative if you prefer a less urbanised, forest-framed waterfall visit.",
       bestTime:"Only when access is open and weather is safe; avoid periods of heavy rain.",
       notes:"The rocks and water can be dangerous. Do not swim or bathe, and confirm access with a local source before travelling specifically for the falls.",
       wikiTitle:"Chelavara Falls", nearby:["nalknad-palace","kabbe-betta-view","thadiyandamol-peak"]
+    },
+    {
+      id:"kaapi-nele-adventure-trek", name:"Kaapi Nele - Adventure Trek Coorg", city:"Ammathi / Bilugunda", group:"Kakkabe & Virajpet",
+      tag:"Coffee · Guided adventure walk", crowd:"Booking-dependent", duration:"90–180 min", mapQuery:"Kaapi Nele - Adventure Trek Coorg, Iynanda Mane, Billugunda Village, Ammathi, Bilugunda, Karnataka 571211",
+      overview:"A hosted coffee-country experience offering plantation walks, coffee tasting and nature-adventure options in the Ammathi / Bilugunda area of Kodagu.",
+      why:"An experience-led stop for walking through the plantation landscape and learning about local coffee and Kodava country.",
+      bestTime:"Reserve a session and confirm the current meeting point before travelling.",
+      notes:"Experiences and trail options depend on the chosen package, weather and host availability. Confirm duration, difficulty, inclusions and safety guidance before booking.",
+      wikiTitle:"", officialUrl:"https://kaapinele.co.in/", nearby:["chelavara-falls","nalknad-palace","greenway-coffee-island"]
     },
     {
       id:"nalknad-palace", name:"Nalknad Palace", city:"Kakkabe / Virajpet", group:"Kakkabe & Virajpet",
@@ -271,6 +309,15 @@ window.ROAMPLANDATA = {
       bestTime:"Visit in daylight when access is open. Avoid heavy-rain periods, when water levels and rocks can be dangerous.",
       notes:"Kerala Tourism places Ezharakund in Kudianmala and lists it about 50 km from Kannur town; your supplied pin is around Pottenplave/Vellad. Follow posted rules, stay on approved paths and do not assume swimming is allowed.",
       wikiTitle:"", officialUrl:"https://www.keralatourism.org/malabar/video-gallery/ezharakund-waterfalls/1078", nearby:["alakapuri-waterfalls","areekamala-viewpoint","kalanki-queen-of-hills"]
+    },
+    {
+      id:"brahmagiri-wildlife-sanctuary", name:"Brahmagiri Wildlife Sanctuary", city:"Kutta", group:"Kutta & Nagarahole",
+      tag:"Wildlife · Forest", crowd:"Access and permits vary", duration:"Half day to full day", mapQuery:"Brahmagiri Wildlife Sanctuary Karnataka, 5JFV+3J4, Kappimala - Paithalmala Road, Vellad, 670571",
+      overview:"A protected Western Ghats forest landscape associated with the Brahmagiri range near the Kodagu–Kerala border. This listing preserves the location details supplied for the Kappimala–Paithalmala Road pin.",
+      why:"A nature-focused option for travellers interested in Western Ghats forest, wildlife and biodiversity.",
+      bestTime:"Confirm current forest access, permissions and weather before planning; do not assume casual entry into the sanctuary is allowed.",
+      notes:"Location check needed: the supplied Vellad / PIN 670571 address may not be the usual Kodagu-side sanctuary entrance and its state details may be inconsistent. Verify the exact pin and permitted entry gate with Forest Department/local authorities before driving or booking a trek.",
+      wikiTitle:"Brahmagiri Wildlife Sanctuary", officialUrl:"https://kodagu.nic.in/en/tourism/adventures/", nearby:["iruppu-falls","nagarahole-national-park","nishani-motte"]
     },
     {
       id:"iruppu-falls", name:"Iruppu Falls", city:"Kutta", group:"Kutta & Nagarahole",
