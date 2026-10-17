@@ -43,7 +43,7 @@ async function loadWikipedia(p){
     $("wikiArticleLink").textContent="Search Wikipedia ↗";
     return;
   }
-  $("wikiHeading").textContent=page.title+" on Wikipedia";
+  $("wikiHeading").textContent=p.wikiLabel||page.title+" on Wikipedia";
   $("wikiSummary").textContent=page.extract;
   const article="https://en.wikipedia.org/wiki/"+encodeURIComponent(page.title.replace(/ /g,"_"));
   $("wikiArticleLink").href=article;
@@ -74,6 +74,8 @@ else{
  $("groupFact").textContent=place.group;
  $("crowdFact").textContent=place.crowd+" (planning estimate)";
  $("visitNotes").textContent=place.notes;
+ const official=$("officialSourceLink");
+ if(place.officialUrl){official.href=place.officialUrl;official.hidden=false;}else{official.hidden=true;}
  $("quickTitle").textContent=place.name;
  $("quickLocation").textContent=place.city+", Kodagu, Karnataka";
  $("quickDuration").textContent=place.duration;
