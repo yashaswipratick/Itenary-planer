@@ -49,7 +49,7 @@ function addSimple(type){editStop();setVal("stopType",type);if(type==="food")set
 function currentTripLabel(t){return (t.name||"Untitled itinerary")+" · "+(t.destination||"no destination set");}
 function toMinutes(clock){const parts=String(clock||"09:00").split(":").map(Number);return (parts[0]||0)*60+(parts[1]||0);}
 function fromMinutes(value){const n=Math.max(0,value)%1440;return String(Math.floor(n/60)).padStart(2,"0")+":"+String(n%60).padStart(2,"0");}
-function suggestedStartTime(t,dayIndex){const stops=(t.days[dayIndex]&&t.days[dayIndex].stops)||[];if(!stops.length)return "09:00";let last=0;stops.forEach(s=>{if(/^\d{2}:\d{2}$/.test(s.time||""))last=Math.max(last,toMinutes(s.time)+(Number(s.duration)||60));});return fromMinutes(last?last+15:540);}
+function suggestedStartTime(t,dayIndex){const stops=(t.days[dayIndex]&&t.days[dayIndex].stops)||[];if(!stops.length)return "09:00";let last=0;stops.forEach(s=>{if(/^\d{2}:\d{2}$/.test(s.time||""))last=Math.max(last,toMinutes(s.time)+(Number(s.duration)||60));});const suggested=last?last+15:540;return fromMinutes(suggested>1320?540:suggested);}
 function populatePickerAreas(){
  const select=$("pickerArea");
  const groups=[...new Set((catalog.places||[]).map(p=>p.group).filter(Boolean))];
@@ -102,9 +102,10 @@ function addPickedPlaces(){
  const day=t.days[dayIndex];if(!day.stops)day.stops=[];
  const seen=new Set(t.days.flatMap(d=>d.stops||[]).flatMap(s=>[s.placeId?"place:"+s.placeId:"","name:"+String(s.name||"").trim().toLowerCase()]).filter(Boolean));
  const duration=Math.max(15,Math.min(360,Number($("pickerDuration").value)||60));
- let clock=toMinutes($("pickerStartTime").value||suggestedStartTime(t,dayIndex)),added=0,duplicates=0;
+ let clock=toMinutes($("pickerStartTime").value||suggestedStartTime(t,dayIndex)),added=0,duplicates=0,tooLate=0;
  ids.forEach(id=>{
   const p=(catalog.places||[]).find(x=>x.id===id);if(!p)return;
+  if(clock>1320){tooLate++;return;}
   const nameKey="name:"+String(p.name||"").trim().toLowerCase(),idKey="place:"+p.id;
   if(seen.has(idKey)||seen.has(nameKey)){duplicates++;return;}
   const tag=(p.tag||"").toLowerCase();
@@ -121,7 +122,7 @@ function addPickedPlaces(){
  activeDay=dayIndex;
  $("placePickerDialog").close();pickedPlaceIds.clear();pickedPlaceOrder=[];
  save();
- toast("Added "+added+" place"+(added===1?"":"s")+" to Day "+(dayIndex+1)+(duplicates?" · "+duplicates+" duplicate"+(duplicates===1?"":"s")+" skipped":""));
+ toast("Added "+added+" place"+(added===1?"":"s")+" to Day "+(dayIndex+1)+(duplicates?" · "+duplicates+" duplicate"+(duplicates===1?"":"s")+" skipped":"")+(tooLate?" · "+tooLate+" moved to a later day (after 10 PM)":""));
 }
 
 $("pickPlacesBtn").onclick=openPlacePicker;
