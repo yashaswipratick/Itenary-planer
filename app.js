@@ -104,7 +104,6 @@ function share(){const t=active();if(!t)return;try{const payload=btoa(unescape(e
 function exportTrip(){const t=active();const blob=new Blob([JSON.stringify(t,null,2)],{type:"application/json"});const a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download=(t.name||"itinerary").toLowerCase().replace(/[^a-z0-9]+/g,"-")+".json";a.click();URL.revokeObjectURL(a.href);toast("Itinerary exported");}
 function addSimple(type){editStop();setVal("stopType",type);if(type==="food")setVal("stopName","Meal / break");else setVal("stopName","New destination");}
 const starterSlotNames=new Set(["Breakfast / coffee","Travel to first stop","Main attraction","Hidden gem nearby","Lunch break","Explore at an easy pace","Rest / travel buffer","Offbeat stop","Sunset / scenic stop","Dinner"]);
-const replaceableSightseeingSlots=new Set(["Main attraction","Hidden gem nearby","Explore at an easy pace","Offbeat stop","Sunset / scenic stop"]);
 function removeStarterTemplatePlaceholders(){
  const defaultNotes=new Set([
   "Ease into the day before driving.",
@@ -290,7 +289,6 @@ function addPickedPlaces(){
  ids.forEach(id=>{const p=placeById(id);if(!p)return;const nameKey="name:"+String(p.name||"").trim().toLowerCase(),idKey="place:"+p.id;if(seen.has(idKey)||seen.has(nameKey)){duplicates++;return;}seen.add(idKey);seen.add(nameKey);candidates.push(p);});
  if(!candidates.length){toast(duplicates?"Those places are already in this itinerary.":"No destinations were selected.");return;}
  // Replace untouched generic sightseeing slots, but keep meal times, travel buffers and custom stops.
- day.stops=day.stops.filter(s=>!(replaceableSightseeingSlots.has(s.name)&&!s.placeId));
  let clock=toMinutes($("pickerStartTime").value||suggestedStartTime(t,dayIndex)),added=0,tooLate=0;
  candidates.forEach(p=>{
   const tag=(p.tag||"").toLowerCase();
