@@ -67,7 +67,7 @@ else{
  $("placeOverview").textContent=place.overview;
  $("placeWhy").textContent=place.why;
  $("placeEmoji").textContent=emoji(place);
- $("mapLink").href="https://www.google.com/maps/search/?api=1&query="+encodeURIComponent(place.mapQuery||place.name);
+ $("mapLink").href=place.mapUrl||"https://www.google.com/maps/search/?api=1&query="+encodeURIComponent(place.mapQuery||place.name);
  $("directionsLink").href="https://www.google.com/maps/dir/?api=1&destination="+encodeURIComponent(place.mapQuery||place.name)+"&travelmode=driving";
  $("durationFact").textContent=place.duration;
  $("bestTimeFact").textContent=place.bestTime;
