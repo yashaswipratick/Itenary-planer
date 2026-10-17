@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#f4f5ef">
+<meta name="description" content="Explore Coorg (Kodagu), Karnataka. Browse places by country, state and city, discover nearby attractions, and read place guides with Wikipedia links.">
+<title>Explore Coorg — RoamPlan</title>
+<link rel="stylesheet" href="styles.css"><link rel="stylesheet" href="explorer.css">
+</head>
+<body class="explorer-page">
+<header class="explore-top">
+  <a class="brand explore-brand" href="index.html"><span class="brand-icon">⌁</span><span><b>RoamPlan</b><small>TRAVEL, YOUR WAY</small></span></a>
+  <nav aria-label="Main navigation"><a href="index.html">My itineraries</a><a class="current" href="destinations.html">Explore destinations</a></nav>
+</header>
+<main class="explore-main">
+  <section class="destination-hero">
+    <p class="eyebrow">DESTINATION LIBRARY · INDIA</p>
+    <div class="hero-inner">
+      <div>
+        <p class="hero-kicker">WESTERN GHATS · KARNATAKA</p>
+        <h1 id="destinationTitle">Coorg <span>(Kodagu)</span></h1>
+        <p class="hero-copy">Coffee-covered hills, forest waterfalls, Tibetan Buddhist culture, riverside escapes and quiet countryside. Explore Coorg by area so nearby places are easier to combine.</p>
+        <div class="hero-tags"><span>✦ Famous places</span><span>↟ Hidden gems</span><span>⌖ Nearby areas</span></div>
+      </div>
+      <div class="hero-stamp"><span>ROAM</span><b>COORG</b><span>KARNATAKA · INDIA</span></div>
+    </div>
+  </section>
+
+  <section class="filter-panel panel" aria-label="Find a destination">
+    <div class="filter-intro"><div><p class="eyebrow green">FIND YOUR PLACE</p><h2>Where do you want to explore?</h2></div><p class="muted small-text">Choose a country, state and city/area. Nearby recommendations update with your selection.</p></div>
+    <div class="filter-grid">
+      <div><label for="countrySelect">COUNTRY</label><select id="countrySelect"><option value="India">India</option></select></div>
+      <div><label for="stateSelect">STATE</label><select id="stateSelect"><option value="Karnataka">Karnataka</option></select></div>
+      <div><label for="citySelect">CITY / AREA</label><select id="citySelect"></select></div>
+    </div>
+    <div class="search-row"><label class="search-box"><span>⌕</span><input id="placeSearch" type="search" placeholder="Search a place, experience or area…" autocomplete="off"></label><button id="clearFilters" class="btn">Reset filters</button></div>
+  </section>
+
+  <section class="region-intro" id="regionIntro">
+    <div><p class="eyebrow green">THE DESTINATION</p><h2>Coorg, in brief</h2><p>Kodagu (also called Coorg) is a hilly district in southwestern Karnataka, on the eastern slopes of the Western Ghats. It is known for coffee and pepper plantations, forested hills and the Kaveri River's source at Talakaveri. Madikeri is the district headquarters.</p></div>
+    <a class="text-link" href="https://en.wikipedia.org/wiki/Kodagu_district" target="_blank" rel="noopener">Read Kodagu on Wikipedia ↗</a>
+  </section>
+
+  <section class="list-heading"><div><p class="eyebrow green">THE PLACE COLLECTION</p><h2 id="resultsTitle">Explore Coorg by area</h2><p class="muted" id="resultsSubtitle">Browse every place in the guide, grouped into practical sightseeing circuits.</p></div><span class="result-count" id="resultCount">23 places</span></section>
+  <div id="placeGroups" class="place-groups" aria-live="polite"></div>
+
+  <section id="nearbySection" class="nearby-section hidden">
+    <div class="nearby-head"><div><p class="eyebrow green">PAIR YOUR VISIT</p><h2 id="nearbyTitle">Nearby areas to explore</h2><p class="muted" id="nearbyCopy">More places that can fit into the same regional outing.</p></div></div>
+    <div id="nearbyGroups" class="nearby-groups"></div>
+  </section>
+
+  <section class="source-note"><div class="source-mark">i</div><div><b>About the place information</b><p>Each place page includes a locally written travel overview, practical visit notes, Google Maps, and a live Wikipedia introduction when a matching article exists. Smaller local stops may not have their own Wikipedia article; those pages say so and retain the guide overview. Crowd labels are planning estimates, not live crowd data. Always verify access, weather, opening times and permits before travelling.</p></div></section>
+  <footer class="explore-footer"><a href="index.html">← Back to itinerary planner</a><span>RoamPlan · Free travel planning</span></footer>
+</main>
+<script src="destinations-data.js"></script><script src="destinations.js"></script>
+</body></html>
