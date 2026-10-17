@@ -86,3 +86,17 @@
 .picker-place.selected .picker-stop-number{background:#dcebd8}
 @media(max-width:790px){.picker-route-summary{padding-left:16px;padding-right:16px}.route-summary-top{gap:10px}.route-locked-pill{max-width:160px;white-space:normal;text-align:center}}
 @media(max-width:540px){.day-summary-meta{justify-content:flex-start;margin-top:9px}.day-route-label{white-space:normal;max-width:100%}.route-summary-top{flex-direction:column}.route-locked-pill{max-width:none}.route-stop-chips{gap:5px}.route-stop-chip{max-width:100%}.route-summary-description{font-size:10px}}
+
+
+/* Fix stop-card grid: checkbox, time, details and actions are four distinct items. */
+.stop-card{grid-template-columns:28px 58px minmax(0,1fr) auto}
+.time-rail{grid-column:2;grid-row:1;min-width:0}
+.stop-main{grid-column:3;grid-row:1;min-width:0}
+.stop-actions{grid-column:4;grid-row:1;min-width:0}
+@media(max-width:790px){
+  .stop-card{grid-template-columns:27px minmax(0,1fr);align-items:start}
+  .stop-check{grid-column:1;grid-row:1}
+  .time-rail{grid-column:2;grid-row:1;padding-top:0;white-space:nowrap}
+  .stop-main{grid-column:2;grid-row:2;min-width:0}
+  .stop-actions{grid-column:2;grid-row:3;flex-wrap:wrap}
+}
