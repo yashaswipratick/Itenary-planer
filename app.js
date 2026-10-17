@@ -17,24 +17,49 @@ function starter(){return[
 ].map((x,i)=>({id:uid(),time:x[0],name:x[1],location:"",duration:x[3],type:x[2],crowd:x[4],notes:x[5],done:false,order:i}));}
 function makeTrip(data={}){let days=Number(data.days)||1;return{id:uid(),name:data.name||"My new adventure",destination:data.destination||"",origin:data.origin||"",baseLocation:data.baseLocation||"",startDate:data.startDate||"",days:Array.from({length:days},(_,i)=>({stops:data.template===false?[]:starter().map(s=>({...s,id:uid()}))})),created:Date.now()};}
 function save(){try{localStorage.setItem(KEY,JSON.stringify(trips));$("saveStatus").textContent="● All changes saved";}catch(e){$("saveStatus").textContent="Could not save locally";}render();}
-function fixHarangiStopLabels(){
+function catalogPlaceForStop(stop){
+ if(stop.placeId)return placeById(stop.placeId);
+ const clean=s=>String(s||"").toLowerCase().replace(/[^a-z0-9]+/g," ").trim();
+ const name=clean(stop.name);
+ const aliases={"harangi dam":"harangi-dam","harangi reservoir":"harangi-dam","harangi reservoir kodagu":"harangi-dam"};
+ if(aliases[name])return placeById(aliases[name]);
+ return (catalog.places||[]).find(p=>clean(p.name)===name)||null;
+}
+function normalizeSavedPlaceStops(){
  let changed=false;
  for(const trip of trips){
+  const seen=new Map();
   for(const day of (trip.days||[])){
+   const kept=[];
    for(const stop of (day.stops||[])){
-    if(stop.placeId!=="harangi-dam")continue;
-    const place=placeById("harangi-dam");
-    if(!place)continue;
-    if(stop.name==="Harangi Dam"||!stop.name){stop.name=place.name;changed=true;}
-    if(!stop.location||stop.location==="Harangi Dam Hudgur Kodagu"){stop.location=place.mapQuery||place.name;changed=true;}
-    if(stop.mapUrl!==place.mapUrl){stop.mapUrl=place.mapUrl||"";changed=true;}
+    const place=catalogPlaceForStop(stop);
+    if(!place){kept.push(stop);continue;}
+    if(stop.placeId!==place.id){stop.placeId=place.id;changed=true;}
+    if(stop.name!==place.name){stop.name=place.name;changed=true;}
+    if(!stop.location||stop.location==="Harangi Dam Hudgur Kodagu"||place.id==="harangi-dam"){
+     const location=place.mapQuery||place.name;
+     if(stop.location!==location){stop.location=location;changed=true;}
+    }
+    if(place.mapUrl&&(stop.mapUrl!==place.mapUrl)){stop.mapUrl=place.mapUrl;changed=true;}
+    if(!seen.has(place.id)){
+     seen.set(place.id,stop);
+     kept.push(stop);
+    }else{
+     const first=seen.get(place.id);
+     if(stop.done&&!first.done){first.done=true;changed=true;}
+     if(!first.notes&&stop.notes){first.notes=stop.notes;changed=true;}
+     if(!first.location&&stop.location){first.location=stop.location;changed=true;}
+     // A repeated curated place is shown only once per trip.
+     changed=true;
+    }
    }
+   day.stops=kept;
   }
  }
  if(changed){try{localStorage.setItem(KEY,JSON.stringify(trips));}catch(e){}}
 }
 function load(){try{trips=JSON.parse(localStorage.getItem(KEY)||"[]");if(!Array.isArray(trips))trips=[];}catch{trips=[];}if(!trips.length){const t=makeTrip({name:"A slow weekend in Coorg",destination:"Coorg, Karnataka",origin:"Bengaluru",days:1});trips.push(t);activeId=t.id;}else activeId=trips[0].id;
-const hash=location.hash.slice(1);if(hash.startsWith("trip=")){try{const shared=JSON.parse(decodeURIComponent(escape(atob(hash.slice(5)))));if(shared&&shared.name&&Array.isArray(shared.days)){shared.id=uid();trips.unshift(shared);activeId=shared.id;history.replaceState(null,"",location.pathname+location.search);save();toast("Shared itinerary imported as a new copy");}}catch{toast("This share link could not be imported");}}fixHarangiStopLabels();render();}
+const hash=location.hash.slice(1);if(hash.startsWith("trip=")){try{const shared=JSON.parse(decodeURIComponent(escape(atob(hash.slice(5)))));if(shared&&shared.name&&Array.isArray(shared.days)){shared.id=uid();trips.unshift(shared);activeId=shared.id;history.replaceState(null,"",location.pathname+location.search);save();toast("Shared itinerary imported as a new copy");}}catch{toast("This share link could not be imported");}}normalizeSavedPlaceStops();render();}
 function active(){return trips.find(t=>t.id===activeId)||trips[0];}
 function escapeHtml(s=""){return String(s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));}
 function formatDate(date,offset){if(!date)return"";const d=new Date(date+"T12:00:00");d.setDate(d.getDate()+offset);return d.toLocaleDateString(undefined,{weekday:"short",month:"short",day:"numeric"});}
@@ -107,7 +132,7 @@ function routeForDay(day){
  return candidates[0];
 }
 function baseRegionForTrip(t){
- const base=String(t&&t.baseLocation||"").toLowerCase();
+ const base=String(t&&(t.baseLocation||t.origin)||"").toLowerCase();
  if(/virajpet|bittangala|ambatty|bitangala/.test(base))return "virajpet";
  if(/kushalnagar|bylakuppe|nisargadhama|valnur|siddapura|harangi|dubare/.test(base))return "east";
  if(/madikeri|mercara|coorg golf links/.test(base))return "madikeri";
