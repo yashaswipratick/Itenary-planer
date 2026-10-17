@@ -84,17 +84,26 @@ function editStop(id){const t=active(),s=id?t.days[activeDay].stops.find(x=>x.id
 function saveStop(){const t=active(),list=t.days[activeDay].stops,id=$("stopId").value;let s=list.find(x=>x.id===id);if(!s){s={id:uid(),done:false};list.push(s);}Object.assign(s,{name:$("stopName").value.trim(),location:$("stopLocation").value.trim(),time:$("stopTime").value,duration:Number($("stopDuration").value)||60,type:$("stopType").value,crowd:$("stopCrowd").value,notes:$("stopNotes").value.trim()});list.sort((a,b)=>(a.time||"99:99").localeCompare(b.time||"99:99"));$("stopDialog").close();save();toast("Stop saved");}
 function removeStop(){const t=active(),id=$("stopId").value;t.days[activeDay].stops=t.days[activeDay].stops.filter(s=>s.id!==id);$("stopDialog").close();save();toast("Stop deleted");}
 function mapDay(){
- const t=active(),day=t.days[activeDay],stops=(day.stops||[]).filter(s=>s.location||s.name);
+ const t=active(),day=t.days[activeDay];
+ // Starter-template placeholders are schedule reminders, not real map destinations.
+ // Keep them out of Google Maps unless the user supplied a concrete location for that stop.
+ const routePlaceholders=new Set([...starterSlotNames,"Meal / break","New destination"]);
+ const stops=(day.stops||[]).filter(s=>{
+  const name=String(s.name||"").trim(),hasLocation=Boolean(String(s.location||"").trim());
+  if(s.placeId)return true;
+  return Boolean(name)&&(!routePlaceholders.has(name)||hasLocation);
+ });
  if(!stops.length){toast("Add a destination first");return;}
- const places=stops.map(s=>s.location||s.name),source=String(day.sourceLocation||"").trim();
+ const places=stops.map(s=>String(s.location||s.name).trim()).filter(Boolean),source=String(day.sourceLocation||"").trim();
+ if(!places.length){toast("Add a destination first");return;}
  let origin,destination,waypoints;
  if(source){
-  // With a source, all planned stops become destination/waypoints in their current itinerary order.
+  // With a source, all planned destinations become route stops in itinerary order.
   origin=source;
   destination=places[places.length-1];
   waypoints=places.slice(0,-1);
  }else{
-  // Keep the previous behaviour for older plans without a saved source location.
+  // Without a source, use the first real destination as the origin for backward compatibility.
   origin=places.shift();
   destination=places.pop()||origin;
   waypoints=places;
