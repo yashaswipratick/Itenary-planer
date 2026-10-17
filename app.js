@@ -101,7 +101,8 @@ function renderStop(s,i){
  const region=s.placeGroup?'<span>⌖ '+escapeHtml(s.placeGroup)+(s.placeState?', '+escapeHtml(s.placeState):"")+'</span>':"";
  const spilloverTag=s.spilloverFromDay?'<span class="spillover-state">↪ Planned for Day '+Number(s.spilloverFromDay)+' · spillover to Day '+(activeDay+1)+'</span>':"";
  const shiftButton=s.spilloverFromDay&&!s.done?'<button class="mini" data-action="shift" data-id="'+s.id+'" title="Move this spillover destination to the next day">Shift to next day</button>':"";
- return '<article class="stop-card '+(s.done?'done':'')+'" data-stop="'+s.id+'"><button class="stop-check" data-action="toggle" data-id="'+s.id+'" aria-label="'+(s.done?"Mark not visited":"Mark visited")+'" aria-pressed="'+(s.done?'true':'false')+'">'+(s.done?"✓":"")+'</button><div class="time-rail">'+escapeHtml(s.time||"Anytime")+'<br><span style="font-weight:500;color:#92988f">'+(Number(s.duration)||0)+' min</span></div><div class="stop-main"><div class="stop-title-row"><h4 class="stop-title">'+escapeHtml(s.name)+'</h4><span class="tag '+escapeHtml(s.type)+'">'+escapeHtml(types[s.type]||"Activity")+'</span>'+stateTag+spilloverTag+'</div><div class="stop-meta"><span class="crowd '+escapeHtml(crowd)+'">● '+escapeHtml(crowdLabels[crowd]||crowdLabels.unknown)+'</span>'+(s.location?'<span>⌖ '+escapeHtml(s.location)+'</span>':"")+region+'</div>'+(s.notes?'<p class="stop-notes">'+escapeHtml(s.notes)+'</p>':"")+'</div><div class="stop-actions"><a class="mini" href="'+map+'" target="_blank" rel="noopener">↗ Maps</a>'+detailLink+'<button class="mini" data-action="edit" data-id="'+s.id+'">Edit</button><button class="mini" data-action="move" data-id="'+s.id+'" title="Move stop later in the day">↓</button>'+shiftButton+'<button class="mini danger" data-action="remove" data-id="'+s.id+'" title="Remove this stop from the day" aria-label="Remove '+escapeHtml(s.name)+' from this day">Remove</button></div></article>';
+ const returnButton=s.spilloverFromDay&&!s.done&&Number(s.spilloverFromDay)<activeDay+1?'<button class="mini spillover-return" data-action="return" data-id="'+s.id+'" title="Move this destination back to its original day">↶ Day '+Number(s.spilloverFromDay)+'</button>':"";
+ return '<article class="stop-card '+(s.done?'done':'')+'" data-stop="'+s.id+'"><button class="stop-check" data-action="toggle" data-id="'+s.id+'" aria-label="'+(s.done?"Mark not visited":"Mark visited")+'" aria-pressed="'+(s.done?'true':'false')+'">'+(s.done?"✓":"")+'</button><div class="time-rail">'+escapeHtml(s.time||"Anytime")+'<br><span style="font-weight:500;color:#92988f">'+(Number(s.duration)||0)+' min</span></div><div class="stop-main"><div class="stop-title-row"><h4 class="stop-title">'+escapeHtml(s.name)+'</h4><span class="tag '+escapeHtml(s.type)+'">'+escapeHtml(types[s.type]||"Activity")+'</span>'+stateTag+spilloverTag+'</div><div class="stop-meta"><span class="crowd '+escapeHtml(crowd)+'">● '+escapeHtml(crowdLabels[crowd]||crowdLabels.unknown)+'</span>'+(s.location?'<span>⌖ '+escapeHtml(s.location)+'</span>':"")+region+'</div>'+(s.notes?'<p class="stop-notes">'+escapeHtml(s.notes)+'</p>':"")+'</div><div class="stop-actions"><a class="mini" href="'+map+'" target="_blank" rel="noopener">↗ Maps</a>'+detailLink+'<button class="mini" data-action="edit" data-id="'+s.id+'">Edit</button><button class="mini" data-action="move" data-id="'+s.id+'" title="Move stop later in the day">↓</button>'+shiftButton+returnButton+'<button class="mini danger" data-action="remove" data-id="'+s.id+'" title="Remove this stop from the day" aria-label="Remove '+escapeHtml(s.name)+' from this day">Remove</button></div></article>';
 }
 function syncFields(){const t=active();if(!t)return;t.name=$("tripName").value;t.destination=$("destination").value;t.origin=$("origin").value;t.startDate=$("startDate").value;const n=Number($("dayCount").value);while(t.days.length<n)t.days.push({stops:[]});if(t.days.length>n)t.days=t.days.slice(0,n);activeDay=Math.min(activeDay,t.days.length-1);save();}
 function openCreate(){ $("tripForm").reset();$("newDate").value="";$("tripDialog").showModal();}
@@ -143,7 +144,10 @@ function carryUnvisitedForward(stopId=null){
    moving.add(stop.id);merged.push(stop.name);
    continue;
   }
-  if(!stop.spilloverFromDay)stop.spilloverFromDay=fromIndex+1;
+  if(!stop.spilloverFromDay){
+   stop.spilloverFromDay=fromIndex+1;
+   stop.spilloverOriginalTime=stop.time||"";
+  }
   const nextTime=nextAvailableStopTime(target,Math.max(15,Number(stop.duration)||60));
   if(nextTime)stop.time=nextTime;
   target.stops.push(stop);moving.add(stop.id);moved.push(stop.name);
@@ -155,6 +159,45 @@ function carryUnvisitedForward(stopId=null){
  save();
  const total=moved.length+merged.length;
  toast("Carried "+total+" unvisited destination"+(total===1?"":"s")+" from Day "+(fromIndex+1)+" to Day "+(toIndex+1)+(merged.length?" · existing duplicates combined":""));
+}
+function returnSpilloverToOriginalDay(stopId){
+ const t=active();if(!t)return;
+ const fromIndex=activeDay,source=t.days[fromIndex];
+ const stop=(source.stops||[]).find(s=>s.id===stopId);
+ if(!stop||stop.done||!stop.spilloverFromDay){toast("This destination cannot be moved back");return;}
+ const originalDayNumber=Number(stop.spilloverFromDay),targetIndex=originalDayNumber-1;
+ if(!Number.isInteger(targetIndex)||targetIndex<0||targetIndex>=fromIndex||!t.days[targetIndex]){
+  toast("The original day is no longer available in this itinerary");return;
+ }
+ const target=t.days[targetIndex];if(!target.stops)target.stops=[];
+ const keys=stopIdentityKeys(stop);
+ const match=target.stops.find(existing=>stopIdentityKeys(existing).some(key=>keys.includes(key)));
+ if(match){
+  source.stops=source.stops.filter(s=>s.id!==stopId);
+  delete match.spilloverFromDay;
+  delete match.spilloverOriginalTime;
+  activeDay=targetIndex;
+  save();
+  toast("Already planned on Day "+originalDayNumber+" · removed the spillover duplicate");
+  return;
+ }
+ const duration=Math.max(15,Number(stop.duration)||60);
+ const originalTime=/^\d{2}:\d{2}$/.test(stop.spilloverOriginalTime||"")?stop.spilloverOriginalTime:stop.time;
+ const fits=(time)=>/^\d{2}:\d{2}$/.test(time||"")&&!target.stops.some(existing=>{
+  if(existing.id===stopId||! /^\d{2}:\d{2}$/.test(existing.time||""))return false;
+  const start=toMinutes(existing.time),end=start+(Number(existing.duration)||60);
+  const candidate=toMinutes(time);
+  return candidate<end&&candidate+duration>start;
+ });
+ stop.time=fits(originalTime)?originalTime:(nextAvailableStopTime(target,duration)||originalTime);
+ delete stop.spilloverFromDay;
+ delete stop.spilloverOriginalTime;
+ target.stops.push(stop);
+ target.stops.sort((a,b)=>(a.time||"99:99").localeCompare(b.time||"99:99"));
+ source.stops=source.stops.filter(s=>s.id!==stopId);
+ activeDay=targetIndex;
+ save();
+ toast("Moved "+stop.name+" back to Day "+originalDayNumber);
 }
 function mapDay(){
  const t=active(),day=t.days[activeDay];
@@ -429,7 +472,7 @@ $("newTrip").onclick=$("newTrip2").onclick=$("emptyCreate").onclick=openCreate;$
 ["tripName","destination","origin","startDate"].forEach(id=>$(id).addEventListener("change",syncFields));$("dayCount").onchange=syncFields;$("carryForwardBtn").onclick=()=>carryUnvisitedForward();$("dayMap").onclick=mapDay;$("shareBtn").onclick=share;$("exportBtn").onclick=exportTrip;$("addStop").onclick=()=>editStop();$("addDayStop").onclick=()=>addSimple("famous");$("addMeal").onclick=()=>addSimple("food");$("deleteStop").onclick=removeStop;
 $("allTrips").onclick=()=>{const t=active();if(t){$("pageTitle").textContent=t.name||"My itineraries";$("workspace").classList.remove("hidden");}};
 $("dayTabs").addEventListener("click",e=>{const b=e.target.closest("[data-day]");if(b){activeDay=Number(b.dataset.day);render();}});
-$("stopList").addEventListener("click",e=>{const b=e.target.closest("button");if(!b)return;if(b.dataset.add){addSimple("famous");return;}const id=b.dataset.id,action=b.dataset.action;if(!action)return;const t=active(),list=t.days[activeDay].stops,s=list.find(x=>x.id===id);if(!s)return;if(action==="toggle"){s.done=!s.done;const removed=pruneVisitedDestinationsFromLaterDays(t);save();toast(s.done?(removed?"Marked visited · removed from later days":"Marked visited"):"Marked not visited");}else if(action==="edit")editStop(id);else if(action==="move"){const i=list.indexOf(s);if(i<list.length-1){[list[i],list[i+1]]=[list[i+1],list[i]];save();}}else if(action==="shift"&&s.spilloverFromDay&&!s.done){carryUnvisitedForward(id);}else if(action==="remove"){if(window.confirm("Remove this stop from Day "+(activeDay+1)+"?")){t.days[activeDay].stops=list.filter(x=>x.id!==id);save();toast("Destination removed from itinerary");}}});
+$("stopList").addEventListener("click",e=>{const b=e.target.closest("button");if(!b)return;if(b.dataset.add){addSimple("famous");return;}const id=b.dataset.id,action=b.dataset.action;if(!action)return;const t=active(),list=t.days[activeDay].stops,s=list.find(x=>x.id===id);if(!s)return;if(action==="toggle"){s.done=!s.done;const removed=pruneVisitedDestinationsFromLaterDays(t);save();toast(s.done?(removed?"Marked visited · removed from later days":"Marked visited"):"Marked not visited");}else if(action==="edit")editStop(id);else if(action==="move"){const i=list.indexOf(s);if(i<list.length-1){[list[i],list[i+1]]=[list[i+1],list[i]];save();}}else if(action==="shift"&&s.spilloverFromDay&&!s.done){carryUnvisitedForward(id);}else if(action==="return"&&s.spilloverFromDay&&!s.done){returnSpilloverToOriginalDay(id);}else if(action==="remove"){if(window.confirm("Remove this stop from Day "+(activeDay+1)+"?")){t.days[activeDay].stops=list.filter(x=>x.id!==id);save();toast("Destination removed from itinerary");}}});
 $("tripList").addEventListener("click",e=>{const b=e.target.closest("[data-trip]");if(b){activeId=b.dataset.trip;activeDay=0;render();}});window.addEventListener("hashchange",()=>{if(location.hash.startsWith("#trip=")){const was=activeId;try{const shared=JSON.parse(decodeURIComponent(escape(atob(location.hash.slice(6)))));if(shared.name&&Array.isArray(shared.days)){shared.id=uid();trips.unshift(shared);activeId=shared.id;activeDay=0;history.replaceState(null,"",location.pathname+location.search);save();toast("Shared trip opened as your own copy");}}catch{activeId=was;}}});
 load();
 })();
