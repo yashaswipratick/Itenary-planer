@@ -46,10 +46,12 @@ function mapDay(){const t=active(),stops=t.days[activeDay].stops.filter(s=>s.loc
 function share(){const t=active();if(!t)return;try{const payload=btoa(unescape(encodeURIComponent(JSON.stringify(t))));const url=location.origin+location.pathname+"#trip="+payload;navigator.clipboard.writeText(url).then(()=>toast("Share link copied")).catch(()=>prompt("Copy this itinerary link",url));}catch{toast("Could not create share link");}}
 function exportTrip(){const t=active();const blob=new Blob([JSON.stringify(t,null,2)],{type:"application/json"});const a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download=(t.name||"itinerary").toLowerCase().replace(/[^a-z0-9]+/g,"-")+".json";a.click();URL.revokeObjectURL(a.href);toast("Itinerary exported");}
 function addSimple(type){editStop();setVal("stopType",type);if(type==="food")setVal("stopName","Meal / break");else setVal("stopName","New destination");}
+const starterSlotNames=new Set(["Breakfast / coffee","Travel to first stop","Main attraction","Hidden gem nearby","Lunch break","Explore at an easy pace","Rest / travel buffer","Offbeat stop","Sunset / scenic stop","Dinner"]);
+const replaceableSightseeingSlots=new Set(["Main attraction","Hidden gem nearby","Explore at an easy pace","Offbeat stop","Sunset / scenic stop"]);
 function currentTripLabel(t){return (t.name||"Untitled itinerary")+" · "+(t.destination||"no destination set");}
 function toMinutes(clock){const parts=String(clock||"09:00").split(":").map(Number);return (parts[0]||0)*60+(parts[1]||0);}
 function fromMinutes(value){const n=Math.max(0,value)%1440;return String(Math.floor(n/60)).padStart(2,"0")+":"+String(n%60).padStart(2,"0");}
-function suggestedStartTime(t,dayIndex){const stops=(t.days[dayIndex]&&t.days[dayIndex].stops)||[];if(!stops.length)return "09:00";let last=0;stops.forEach(s=>{if(/^\d{2}:\d{2}$/.test(s.time||""))last=Math.max(last,toMinutes(s.time)+(Number(s.duration)||60));});const suggested=last?last+15:540;return fromMinutes(suggested>1320?540:suggested);}
+function suggestedStartTime(t,dayIndex){const stops=(t.days[dayIndex]&&t.days[dayIndex].stops)||[];const real=stops.filter(s=>!starterSlotNames.has(s.name));if(!real.length)return "09:00";let last=0;real.forEach(s=>{if(/^\\d{2}:\\d{2}$/.test(s.time||""))last=Math.max(last,toMinutes(s.time)+(Number(s.duration)||60));});const suggested=last?last+15:540;return fromMinutes(suggested>1320?540:suggested);}
 function populatePickerAreas(){
  const select=$("pickerArea");
  const groups=[...new Set((catalog.places||[]).map(p=>p.group).filter(Boolean))];
@@ -102,27 +104,39 @@ function addPickedPlaces(){
  const day=t.days[dayIndex];if(!day.stops)day.stops=[];
  const seen=new Set(t.days.flatMap(d=>d.stops||[]).flatMap(s=>[s.placeId?"place:"+s.placeId:"","name:"+String(s.name||"").trim().toLowerCase()]).filter(Boolean));
  const duration=Math.max(15,Math.min(360,Number($("pickerDuration").value)||60));
- let clock=toMinutes($("pickerStartTime").value||suggestedStartTime(t,dayIndex)),added=0,duplicates=0,tooLate=0;
- ids.forEach(id=>{
-  const p=(catalog.places||[]).find(x=>x.id===id);if(!p)return;
-  if(clock>1320){tooLate++;return;}
-  const nameKey="name:"+String(p.name||"").trim().toLowerCase(),idKey="place:"+p.id;
-  if(seen.has(idKey)||seen.has(nameKey)){duplicates++;return;}
+ const candidates=[];let duplicates=0;
+ ids.forEach(id=>{const p=(catalog.places||[]).find(x=>x.id===id);if(!p)return;const nameKey="name:"+String(p.name||"").trim().toLowerCase(),idKey="place:"+p.id;if(seen.has(idKey)||seen.has(nameKey)){duplicates++;return;}seen.add(idKey);seen.add(nameKey);candidates.push(p);});
+ if(!candidates.length){toast(duplicates?"Those places are already in this itinerary.":"No destinations were selected.");return;}
+ // Replace only untouched generic sightseeing placeholders; preserve meals, buffers and custom stops.
+ day.stops=day.stops.filter(s=>!(replaceableSightseeingSlots.has(s.name)&&!s.placeId));
+ let clock=toMinutes($("pickerStartTime").value||suggestedStartTime(t,dayIndex)),added=0,tooLate=0;
+ candidates.forEach(p=>{
   const tag=(p.tag||"").toLowerCase();
   const type=tag.includes("offbeat")?"offbeat":tag.includes("famous")?"famous":tag.includes("food")?"food":tag.includes("local")?"local":"hidden-gem";
   const crowdText=(p.crowd||"").toLowerCase();
   const crowd=crowdText.includes("quiet")||crowdText.includes("less crowded")?"low":crowdText.includes("popular")||crowdText.includes("crowded")?"high":crowdText.includes("unknown")?"unknown":"medium";
+  // Avoid overlapping existing meals, travel buffers or planned stops.
+  let guard=0,conflict=true;
+  while(conflict&&clock<=1320&&guard<40){
+   conflict=false;guard++;
+   for(const existing of day.stops){
+    if(!/^\\d{2}:\\d{2}$/.test(existing.time||""))continue;
+    const existingStart=toMinutes(existing.time),existingEnd=existingStart+(Number(existing.duration)||60);
+    if(clock<existingEnd&&clock+duration>existingStart){clock=existingEnd+15;conflict=true;break;}
+   }
+  }
+  if(clock>1320||conflict){tooLate++;return;}
   const state=p.state||"Karnataka";
-  const notes=(p.overview||"")+(p.bestTime?"\nBest time: "+p.bestTime:"");
+  const notes=(p.overview||"")+(p.bestTime?"\\nBest time: "+p.bestTime:"");
   const stop={id:uid(),placeId:p.id,name:p.name,location:p.mapQuery||p.name,time:fromMinutes(clock),duration,type,crowd,notes,done:false,order:day.stops.length,placeGroup:p.group||"",placeState:state};
-  day.stops.push(stop);seen.add(idKey);seen.add(nameKey);added++;clock+=duration+15;
+  day.stops.push(stop);added++;clock+=duration+15;
  });
- if(!added){toast(duplicates?"Those places are already in this itinerary.":"No destinations were added.");return;}
+ if(!added){toast(duplicates?"Those places are already in this itinerary.":tooLate?"These places won't fit before 10 PM. Choose an earlier start time or another day.":"No destinations were added.");return;}
  day.stops.sort((a,b)=>(a.time||"99:99").localeCompare(b.time||"99:99"));
  activeDay=dayIndex;
  $("placePickerDialog").close();pickedPlaceIds.clear();pickedPlaceOrder=[];
  save();
- toast("Added "+added+" place"+(added===1?"":"s")+" to Day "+(dayIndex+1)+(duplicates?" · "+duplicates+" duplicate"+(duplicates===1?"":"s")+" skipped":"")+(tooLate?" · "+tooLate+" moved to a later day (after 10 PM)":""));
+ toast("Added "+added+" place"+(added===1?"":"s")+" to Day "+(dayIndex+1)+(duplicates?" · "+duplicates+" duplicate"+(duplicates===1?"":"s")+" skipped":"")+(tooLate?" · "+tooLate+" didn't fit before 10 PM; choose another day for those":""));
 }
 
 $("pickPlacesBtn").onclick=openPlacePicker;
