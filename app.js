@@ -114,7 +114,7 @@ function updatePickerRouteSummary(){
   return;
  }
  const incompatible=existing.filter(s=>!route.placeIds.includes(s.placeId));
- const conflictMessage=incompatible.length?'<div class="route-conflict"><b>Different route already planned on this day</b><p>'+escapeHtml(incompatible.map(s=>s.name).join(", "))+' '+(incompatible.length===1?"is":"are")+' not part of this circuit. To avoid backtracking, move or remove '+(incompatible.length===1?"this stop":"these stops")+' or choose another day.</p></div>':"";
+ const conflictMessage=incompatible.length?'<div class="route-conflict"><b>Different route already planned on this day</b><p>'+escapeHtml(incompatible.map(s=>s.name).join(", "))+' '+(incompatible.length===1?"is":"are")+' not part of this circuit. To avoid backtracking, remove '+(incompatible.length===1?"this stop":"these stops")+' from this day and add them to a different route/day. or choose another day.</p></div>':"";
  const chips=route.placeIds.map((id,i)=>{const p=placeById(id);return p?'<span class="route-stop-chip"><i>'+(i+1)+'</i>'+escapeHtml(p.name)+'</span>':"";}).join("");
  const lock=(selected.day.routeId===route.id)?'<span class="route-locked-pill">Day '+(selected.index+1)+' locked to this circuit</span>':"";
  panel.innerHTML='<div class="route-summary-top"><div><p class="route-summary-kicker">CURATED DAY CIRCUIT</p><h3>'+escapeHtml(route.title)+'</h3><p class="route-direction">'+escapeHtml(route.direction)+'</p></div>'+lock+'</div><p class="route-summary-description">'+escapeHtml(route.description)+'</p><div class="route-stop-sequence"><span class="route-sequence-label">SUGGESTED ORDER</span><div class="route-stop-chips">'+chips+'</div></div>'+conflictMessage;
