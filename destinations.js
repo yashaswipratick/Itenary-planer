@@ -52,7 +52,7 @@ function fillSelect(){
  $("placeSearch").addEventListener("input",render);
  $("clearFilters").onclick=()=>{$("countrySelect").value="India";$("stateSelect").value="Karnataka";fillCities("Karnataka","Coorg");$("placeSearch").value="";render();};
 }
-function matchesQuery(p,query){return !query||[p.name,p.city,p.group,p.tag,p.overview,p.why,p.state,p.district].join(" ").toLowerCase().includes(query);}
+function matchesQuery(p,query){return !query||[p.name,...(p.aliases||[]),p.city,p.group,p.tag,p.overview,p.why,p.state,p.district].join(" ").toLowerCase().includes(query);}
 function render(){
  const state=$("stateSelect").value||"Karnataka";
  const city=$("citySelect").value||(state==="Kerala"?"Kerala Border":"Coorg");
