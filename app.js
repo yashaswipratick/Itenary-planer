@@ -51,7 +51,7 @@ const replaceableSightseeingSlots=new Set(["Main attraction","Hidden gem nearby"
 function currentTripLabel(t){return (t.name||"Untitled itinerary")+" · "+(t.destination||"no destination set");}
 function toMinutes(clock){const parts=String(clock||"09:00").split(":").map(Number);return (parts[0]||0)*60+(parts[1]||0);}
 function fromMinutes(value){const n=Math.max(0,value)%1440;return String(Math.floor(n/60)).padStart(2,"0")+":"+String(n%60).padStart(2,"0");}
-function suggestedStartTime(t,dayIndex){const stops=(t.days[dayIndex]&&t.days[dayIndex].stops)||[];const real=stops.filter(s=>!starterSlotNames.has(s.name));if(!real.length)return "09:00";let last=0;real.forEach(s=>{if(/^\\d{2}:\\d{2}$/.test(s.time||""))last=Math.max(last,toMinutes(s.time)+(Number(s.duration)||60));});const suggested=last?last+15:540;return fromMinutes(suggested>1320?540:suggested);}
+function suggestedStartTime(t,dayIndex){const stops=(t.days[dayIndex]&&t.days[dayIndex].stops)||[];const real=stops.filter(s=>!starterSlotNames.has(s.name));if(!real.length)return "09:00";let last=0;real.forEach(s=>{if(/^\d{2}:\d{2}$/.test(s.time||""))last=Math.max(last,toMinutes(s.time)+(Number(s.duration)||60));});const suggested=last?last+15:540;return fromMinutes(suggested>1320?540:suggested);}
 function populatePickerAreas(){
  const select=$("pickerArea");
  const groups=[...new Set((catalog.places||[]).map(p=>p.group).filter(Boolean))];
@@ -120,7 +120,7 @@ function addPickedPlaces(){
   while(conflict&&clock<=1320&&guard<40){
    conflict=false;guard++;
    for(const existing of day.stops){
-    if(!/^\\d{2}:\\d{2}$/.test(existing.time||""))continue;
+    if(!/^\d{2}:\d{2}$/.test(existing.time||""))continue;
     const existingStart=toMinutes(existing.time),existingEnd=existingStart+(Number(existing.duration)||60);
     if(clock<existingEnd&&clock+duration>existingStart){clock=existingEnd+15;conflict=true;break;}
    }
