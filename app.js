@@ -75,11 +75,16 @@ const routeById=id=>ROUTE_CIRCUITS.find(r=>r.id===id)||null;
 const placeById=id=>(catalog.places||[]).find(p=>p.id===id)||null;
 function routeForDay(day){
  if(!day)return null;
- if(day.routeId&&routeById(day.routeId))return routeById(day.routeId);
  const ids=(day.stops||[]).filter(s=>s.placeId).map(s=>s.placeId);
- if(!ids.length)return null;
+ // Clear a leftover route assignment when all curated destinations have been removed.
+ if(!ids.length){delete day.routeId;return null;}
+ const stored=routeById(day.routeId);
+ if(stored&&ids.every(id=>stored.placeIds.includes(id))){
+  (day.stops||[]).filter(s=>s.placeId).forEach(s=>s.routeId=stored.id);
+  return stored;
+ }
  const candidates=ROUTE_CIRCUITS.filter(r=>ids.every(id=>r.placeIds.includes(id))).sort((a,b)=>a.placeIds.length-b.placeIds.length);
- if(!candidates.length)return null;
+ if(!candidates.length){delete day.routeId;return null;}
  day.routeId=candidates[0].id;
  (day.stops||[]).filter(s=>s.placeId).forEach(s=>s.routeId=day.routeId);
  return candidates[0];
@@ -121,7 +126,7 @@ function updatePickerRouteSummary(){
  const incompatible=existing.filter(s=>!route.placeIds.includes(s.placeId));
  const conflictMessage=incompatible.length?'<div class="route-conflict"><b>Different route already planned on this day</b><p>'+escapeHtml(incompatible.map(s=>s.name).join(", "))+' '+(incompatible.length===1?"is":"are")+' not part of this circuit. To avoid backtracking, remove '+(incompatible.length===1?"this stop":"these stops")+' from this day and plan them on a different day.</p></div>':"";
  const chips=route.placeIds.map((id,i)=>{const p=placeById(id);return p?'<span class="route-stop-chip"><i>'+(i+1)+'</i>'+escapeHtml(p.name)+'</span>':"";}).join("");
- const lock=(selected.day.routeId===route.id)?'<span class="route-locked-pill">Day '+(selected.index+1)+' locked to this circuit</span>':"";
+ const lock=(selected.day.routeId===route.id)?'<span class="route-locked-pill">Day '+(selected.index+1)+' · current route</span>':"";
  panel.innerHTML='<div class="route-summary-top"><div><p class="route-summary-kicker">CURATED DAY CIRCUIT</p><h3>'+escapeHtml(route.title)+'</h3><p class="route-direction">'+escapeHtml(route.direction)+'</p></div>'+lock+'</div><p class="route-summary-description">'+escapeHtml(route.description)+'</p><div class="route-stop-sequence"><span class="route-sequence-label">SUGGESTED ORDER</span><div class="route-stop-chips">'+chips+'</div></div>'+conflictMessage;
 }
 function configurePickerForDay(){
@@ -131,7 +136,8 @@ function configurePickerForDay(){
  let routeId=route?route.id:"";
  if(!routeId&&!existing.length)routeId=routeDefaultForTrip(selected.trip);
  $("pickerArea").value=routeId;
- $("pickerArea").disabled=!!(day.routeId&&routeById(day.routeId));
+ // Keep the circuit selector interactive; the selected day is validated before stops are added.
+ $("pickerArea").disabled=false;
  $("pickerStartTime").value=suggestedStartTime(selected.trip,selected.index);
  const selectedRoute=routeById(routeId);
  $("pickerDuration").value=String(selectedRoute?selectedRoute.defaultDuration:60);
@@ -165,15 +171,10 @@ function renderPickerPlaces(){
 }
 function handlePickerCircuitChange(){
  const selected=pickerDay();if(!selected)return;
- if(selected.day.routeId&&routeById(selected.day.routeId)){
-  $("pickerArea").value=selected.day.routeId;
-  toast("This day is already assigned to "+routeById(selected.day.routeId).title+". Use another day for a different route.");
-  return;
- }
  pickedPlaceIds.clear();pickedPlaceOrder=[];
  const route=currentPickerRoute();
  if(route&&!routeIsCompatibleWithSelectedDay(route)&&selected.day.stops.some(s=>s.placeId)){
-  toast("This day already has places from a different route. Split them across days to avoid backtracking.");
+  toast("This circuit doesn't include the places already on this day. Choose a compatible circuit or switch to another day.");
  }
  if(route)$("pickerDuration").value=String(route.defaultDuration);
  renderPickerPlaces();
@@ -195,8 +196,9 @@ function addPickedPlaces(){
  const selected=pickerDay(),route=currentPickerRoute();
  if(!selected||!route){toast("Choose a route circuit first.");return;}
  const dayIndex=selected.index,day=selected.day;if(!day.stops)day.stops=[];
- if(day.routeId&&day.routeId!==route.id){toast("This day is already assigned to another route. Use another day for this circuit.");return;}
- if(!circuitCompatible(day,route)){toast("This day contains places from a different route. Move or remove them first, or use another day.");return;}
+ const existingCuratedPlaces=day.stops.filter(s=>s.placeId);
+ if(existingCuratedPlaces.length&&day.routeId&&day.routeId!==route.id){toast("This day already has places on "+(routeById(day.routeId)?.title||"another circuit")+". Keep this day on that route, or choose another day for "+route.title+".");return;}
+ if(!circuitCompatible(day,route)){toast("This circuit doesn't include the places already on this day. Choose a compatible circuit or use another day.");return;}
  // Use the circuit's recommended sequence, regardless of checkbox click order.
  const ids=route.placeIds.filter(id=>pickedPlaceIds.has(id));
  if(!ids.length){toast("Select at least one destination from this route.");return;}
