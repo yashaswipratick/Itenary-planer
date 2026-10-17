@@ -16,8 +16,10 @@ function catalogPlaceForStop(stop){
 function normalizeSavedPlaceStops(){
  let changed=false;
  for(const trip of trips){
-  const seen=new Map();
+  // Destinations belong to a day, not to the whole trip. A place can validly
+  // be revisited on a different day and must not be deleted during refresh.
   for(const day of (trip.days||[])){
+   const seen=new Map();
    const kept=[];
    for(const stop of (day.stops||[])){
     const place=catalogPlaceForStop(stop);
@@ -37,7 +39,7 @@ function normalizeSavedPlaceStops(){
      if(stop.done&&!first.done){first.done=true;changed=true;}
      if(!first.notes&&stop.notes){first.notes=stop.notes;changed=true;}
      if(!first.location&&stop.location){first.location=stop.location;changed=true;}
-     // A repeated curated place is shown only once per trip.
+     // Collapse accidental duplicates within this day only; other days remain independent.
      changed=true;
     }
    }
@@ -289,7 +291,8 @@ function addPickedPlaces(){
  // Add places in the exact order the user checked them. The user can combine groups if desired.
  const ids=pickedPlaceOrder.filter(id=>route.placeIds.includes(id));
  if(!ids.length){toast("Select at least one destination from this route.");return;}
- const seen=new Set(t.days.flatMap(d=>d.stops||[]).flatMap(s=>[s.placeId?"place:"+s.placeId:"","name:"+String(s.name||"").trim().toLowerCase()]).filter(Boolean));
+ // Prevent duplicates within this day, while allowing the same destination on another day.
+ const seen=new Set(day.stops.flatMap(s=>[s.placeId?"place:"+s.placeId:"","name:"+String(s.name||"").trim().toLowerCase()]).filter(Boolean));
  const duration=Math.max(15,Math.min(600,Number($("pickerDuration").value)||route.defaultDuration||60));
  const candidates=[];let duplicates=0;
  ids.forEach(id=>{const p=placeById(id);if(!p)return;const nameKey="name:"+String(p.name||"").trim().toLowerCase(),idKey="place:"+p.id;if(seen.has(idKey)||seen.has(nameKey)){duplicates++;return;}seen.add(idKey);seen.add(nameKey);candidates.push(p);});
