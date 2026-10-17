@@ -67,7 +67,7 @@ function setVal(id,v){$(id).value=v??""}
 function toast(msg){const el=$("toast");el.textContent=msg;el.classList.add("show");clearTimeout(toastTimer);toastTimer=setTimeout(()=>el.classList.remove("show"),2400);}
 function progress(t){const all=t.days.flatMap(d=>d.stops);return{done:all.filter(s=>s.done).length,total:all.length,pct:all.length?Math.round(100*all.filter(s=>s.done).length/all.length):0};}
 function render(){const t=active();$("tripCount").textContent=trips.length;$("tripList").innerHTML=trips.map(x=>'<button class="trip-link '+(x.id===activeId?'active':'')+'" data-trip="'+x.id+'">⌁ &nbsp;'+escapeHtml(x.name||x.destination||"Untitled trip")+'</button>').join("");$("workspace").classList.toggle("hidden",!t);$("emptyState").classList.toggle("hidden",!!t);if(!t){$("pageTitle").textContent="Plan a trip worth remembering.";return;}
-const p=progress(t);$("crumb").textContent=t.name||"My itinerary";$("pageTitle").textContent=t.name||"Plan a trip worth remembering.";$("statDestination").textContent=t.destination||"Add destination";$("statDays").textContent=t.days.length+" "+(t.days.length===1?"day":"days");$("statVisited").textContent=p.done+" / "+p.total;$("statProgress").textContent=p.pct+"%";$("progressBar").style.width=p.pct+"%";setVal("tripName",t.name);setVal("destination",t.destination);setVal("origin",t.origin);setVal("baseLocation",t.baseLocation||"");setVal("startDate",t.startDate);setVal("dayCount",t.days.length);activeDay=Math.min(activeDay,t.days.length-1);$("dayTabs").innerHTML=t.days.map((d,i)=>'<button class="day-tab '+(i===activeDay?'active':'')+'" data-day="'+i+'">Day '+(i+1)+'</button>').join("");const day=t.days[activeDay];$("dayTitle").textContent="Day "+(activeDay+1);$("dayDate").textContent=formatDate(t.startDate,activeDay);const done=day.stops.filter(s=>s.done).length;$("dayProgress").textContent=done+" / "+day.stops.length+" done";const currentRoute=routeForDay(day);const routeLabel=$("dayRouteLabel");if(currentRoute){routeLabel.textContent="Route · "+currentRoute.title;routeLabel.classList.remove("hidden","route-warning");}else if(day.stops.some(s=>s.placeId)){routeLabel.textContent="⚠ Mixed routes · split this day";routeLabel.classList.remove("hidden");routeLabel.classList.add("route-warning");}else{routeLabel.textContent="";routeLabel.classList.add("hidden");routeLabel.classList.remove("route-warning");}$("stopList").innerHTML=day.stops.length?day.stops.map((s,i)=>renderStop(s,i)).join(""):'<div class="empty"><h2>A day with possibilities.</h2><p>Add the first place, meal or activity to start planning.</p><button class="primary" data-add="destination">＋ Add a stop</button></div>'; }
+const p=progress(t);$("crumb").textContent=t.name||"My itinerary";$("pageTitle").textContent=t.name||"Plan a trip worth remembering.";$("statDestination").textContent=t.destination||"Add destination";$("statDays").textContent=t.days.length+" "+(t.days.length===1?"day":"days");$("statVisited").textContent=p.done+" / "+p.total;$("statProgress").textContent=p.pct+"%";$("progressBar").style.width=p.pct+"%";setVal("tripName",t.name);setVal("destination",t.destination);setVal("origin",t.origin);setVal("baseLocation",t.baseLocation||"");setVal("startDate",t.startDate);setVal("dayCount",t.days.length);activeDay=Math.min(activeDay,t.days.length-1);$("dayTabs").innerHTML=t.days.map((d,i)=>'<button class="day-tab '+(i===activeDay?'active':'')+'" data-day="'+i+'">Day '+(i+1)+'</button>').join("");const day=t.days[activeDay];$("dayTitle").textContent="Day "+(activeDay+1);$("dayDate").textContent=formatDate(t.startDate,activeDay);const done=day.stops.filter(s=>s.done).length;$("dayProgress").textContent=done+" / "+day.stops.length+" done";const currentRoute=routeForDay(day);const routeLabel=$("dayRouteLabel");if(currentRoute){routeLabel.textContent="Route · "+currentRoute.title;routeLabel.classList.remove("hidden","route-warning");}else if(day.stops.some(s=>s.placeId)){routeLabel.textContent="Multiple groups · check route in Maps";routeLabel.classList.remove("hidden");routeLabel.classList.add("route-warning");}else{routeLabel.textContent="";routeLabel.classList.add("hidden");routeLabel.classList.remove("route-warning");}$("stopList").innerHTML=day.stops.length?day.stops.map((s,i)=>renderStop(s,i)).join(""):'<div class="empty"><h2>A day with possibilities.</h2><p>Add the first place, meal or activity to start planning.</p><button class="primary" data-add="destination">＋ Add a stop</button></div>'; }
 function renderStop(s,i){
  const loc=s.location||s.name;
  const map=s.mapUrl||"https://www.google.com/maps/search/?api=1&query="+encodeURIComponent(loc);
@@ -83,7 +83,14 @@ function createTrip(){const t=makeTrip({name:$("newName").value.trim(),destinati
 function editStop(id){const t=active(),s=id?t.days[activeDay].stops.find(x=>x.id===id):null;$("stopForm").reset();setVal("stopId",s?s.id:"");setVal("stopName",s?s.name:"");setVal("stopLocation",s?s.location:"");setVal("stopTime",s?s.time:"09:00");setVal("stopDuration",s?s.duration:60);setVal("stopType",s?s.type:"famous");setVal("stopCrowd",s?s.crowd:"medium");setVal("stopNotes",s?s.notes:"");$("stopModalTitle").textContent=s?"Edit stop":"Add a stop";$("deleteStop").classList.toggle("hidden",!s);$("stopDialog").showModal();}
 function saveStop(){const t=active(),list=t.days[activeDay].stops,id=$("stopId").value;let s=list.find(x=>x.id===id);if(!s){s={id:uid(),done:false};list.push(s);}Object.assign(s,{name:$("stopName").value.trim(),location:$("stopLocation").value.trim(),time:$("stopTime").value,duration:Number($("stopDuration").value)||60,type:$("stopType").value,crowd:$("stopCrowd").value,notes:$("stopNotes").value.trim()});list.sort((a,b)=>(a.time||"99:99").localeCompare(b.time||"99:99"));$("stopDialog").close();save();toast("Stop saved");}
 function removeStop(){const t=active(),id=$("stopId").value;t.days[activeDay].stops=t.days[activeDay].stops.filter(s=>s.id!==id);$("stopDialog").close();save();toast("Stop deleted");}
-function mapDay(){const t=active(),stops=t.days[activeDay].stops.filter(s=>s.location||s.name);if(!stops.length){toast("Add a destination first");return;}const places=stops.map(s=>s.location||s.name),origin=dailyBaseForTrip(t)||t.origin||places.shift(),destination=places.pop()||origin;let url="https://www.google.com/maps/dir/?api=1&origin="+encodeURIComponent(origin)+"&destination="+encodeURIComponent(destination)+"&travelmode=driving";if(places.length)url+="&waypoints="+encodeURIComponent(places.join("|"));window.open(url,"_blank","noopener");}
+function mapDay(){
+ const t=active(),stops=t.days[activeDay].stops.filter(s=>s.location||s.name);
+ if(!stops.length){toast("Add a destination first");return;}
+ const places=stops.map(s=>s.location||s.name),origin=places.shift(),destination=places.pop()||origin;
+ let url="https://www.google.com/maps/dir/?api=1&origin="+encodeURIComponent(origin)+"&destination="+encodeURIComponent(destination)+"&travelmode=driving";
+ if(places.length)url+="&waypoints="+encodeURIComponent(places.join("|"));
+ window.open(url,"_blank","noopener");
+}
 function share(){const t=active();if(!t)return;try{const payload=btoa(unescape(encodeURIComponent(JSON.stringify(t))));const url=location.origin+location.pathname+"#trip="+payload;navigator.clipboard.writeText(url).then(()=>toast("Share link copied")).catch(()=>prompt("Copy this itinerary link",url));}catch{toast("Could not create share link");}}
 function exportTrip(){const t=active();const blob=new Blob([JSON.stringify(t,null,2)],{type:"application/json"});const a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download=(t.name||"itinerary").toLowerCase().replace(/[^a-z0-9]+/g,"-")+".json";a.click();URL.revokeObjectURL(a.href);toast("Itinerary exported");}
 function addSimple(type){editStop();setVal("stopType",type);if(type==="food")setVal("stopName","Meal / break");else setVal("stopName","New destination");}
@@ -149,55 +156,45 @@ function pickerDay(){
 }
 function currentPickerRoute(){return routeById($("pickerArea").value);}
 function updatePickerRouteSummary(){
- const route=currentPickerRoute(),selected=pickerDay();
- const panel=$("pickerRouteSummary");
+ const route=currentPickerRoute(),selected=pickerDay(),panel=$("pickerRouteSummary");
  if(!selected){panel.innerHTML='<p class="route-empty">Select an itinerary day first.</p>';return;}
  const existing=(selected.day.stops||[]).filter(s=>s.placeId);
  if(!route){
-  const existingNames=existing.map(s=>s.name);
-  if(existing.length){
-   panel.innerHTML='<div class="route-conflict"><b>This day already contains stops from different route circuits</b><p>'+escapeHtml(existingNames.join(", "))+' cannot be matched to one circuit together. Remove the off-route stop(s) from this day and add them under a separate day and circuit.</p></div>';
-  }else{
-   panel.innerHTML='<div class="route-summary-empty"><span class="route-summary-icon">↗</span><div><b>Choose a route circuit</b><p>The picker will show only the stops that belong on that route, in suggested travel order. Farther areas stay in separate circuits.</p></div></div>';
-  }
+  panel.innerHTML='<div class="route-summary-empty"><span class="route-summary-icon">↗</span><div><b>Choose an area or circuit</b><p>Select one of the listed regional groups, then choose the destinations you want to add. No starting location is required.</p></div></div>';
   return;
  }
  const incompatible=existing.filter(s=>!route.placeIds.includes(s.placeId));
- const conflictMessage=incompatible.length?'<div class="route-conflict"><b>Different route already planned on this day</b><p>'+escapeHtml(incompatible.map(s=>s.name).join(", "))+' '+(incompatible.length===1?"is":"are")+' not part of this circuit. To avoid backtracking, remove '+(incompatible.length===1?"this stop":"these stops")+' from this day and plan them on a different day.</p></div>':"";
+ const conflictMessage=incompatible.length?'<div class="route-conflict"><b>Destinations from other groups are already on this day</b><p>'+escapeHtml(incompatible.map(s=>s.name).join(", "))+' '+(incompatible.length===1?"is":"are")+' outside this selected group. You can still combine groups; check the combined route and travel time in Google Maps.</p></div>':"";
  const chips=route.placeIds.map((id,i)=>{const p=placeById(id);return p?'<span class="route-stop-chip"><i>'+(i+1)+'</i>'+escapeHtml(p.name)+'</span>':"";}).join("");
- const lock=(selected.day.routeId===route.id)?'<span class="route-locked-pill">Day '+(selected.index+1)+' · current route</span>':"";
- const base=dailyBaseForTrip(selected.trip);
- const sourceNote=base?'<p class="route-source-note"><b>Starting point:</b> '+escapeHtml(base)+'. This location helps pick a regional circuit. <b>Important:</b> stop order is currently a curated preset, not a live road-distance optimization; Google Maps calculates directions for this chosen order.</p>':'<p class="route-source-note">Enter your hotel or resort in “Staying at / daily start” before choosing destinations. This helps select a relevant regional circuit.</p>';
- panel.innerHTML='<div class="route-summary-top"><div><p class="route-summary-kicker">CURATED DAY CIRCUIT</p><h3>'+escapeHtml(route.title)+'</h3><p class="route-direction">'+escapeHtml(route.direction)+'</p></div>'+lock+'</div><p class="route-summary-description">'+escapeHtml(route.description)+'</p>'+sourceNote+'<div class="route-stop-sequence"><span class="route-sequence-label">SUGGESTED ORDER</span><div class="route-stop-chips">'+chips+'</div></div>'+conflictMessage;
+ const lock=(selected.day.routeId===route.id)?'<span class="route-locked-pill">Day '+(selected.index+1)+' · current group</span>':"";
+ const routeNote='<p class="route-source-note">This is a manual area grouping, not an optimized driving route. Choose the places you want, then confirm roads, order and travel times in Google Maps.</p>';
+ panel.innerHTML='<div class="route-summary-top"><div><p class="route-summary-kicker">SELECTED AREA / CIRCUIT</p><h3>'+escapeHtml(route.title)+'</h3><p class="route-direction">'+escapeHtml(route.direction)+'</p></div>'+lock+'</div><p class="route-summary-description">'+escapeHtml(route.description)+'</p>'+routeNote+'<div class="route-stop-sequence"><span class="route-sequence-label">PLACES IN THIS GROUP</span><div class="route-stop-chips">'+chips+'</div></div>'+conflictMessage;
 }
 function configurePickerForDay(){
  const selected=pickerDay();if(!selected)return;
- const day=selected.day,existing=(day.stops||[]).filter(s=>s.placeId);
- const route=preferredRouteForDay(day,selected.trip);
- let routeId=route?route.id:"";
- if(!routeId&&!existing.length)routeId=routeDefaultForTrip(selected.trip);
+ const day=selected.day;
+ const route=routeById(day.routeId)||routeForDay(day);
+ const routeId=route?route.id:"";
  $("pickerArea").value=routeId;
- // Keep the circuit selector interactive; the selected day is validated before stops are added.
  $("pickerArea").disabled=false;
  $("pickerStartTime").value=suggestedStartTime(selected.trip,selected.index);
- const selectedRoute=routeById(routeId);
- $("pickerDuration").value=String(selectedRoute?selectedRoute.defaultDuration:60);
+ $("pickerDuration").value=String(route?route.defaultDuration:60);
  updatePickerRouteSummary();
 }
 function pickerFilteredPlaces(){
  const q=$("pickerSearch").value.trim().toLowerCase(),route=currentPickerRoute();
- if(!route||!routeIsCompatibleWithSelectedDay(route))return [];
+ if(!route)return [];
  return route.placeIds.map(id=>placeById(id)).filter(Boolean).filter(p=>!q||[p.name,...(p.aliases||[]),p.city,p.group,p.tag,p.overview,p.why,p.state||"Karnataka"].join(" ").toLowerCase().includes(q));
 }
 function updatePickerSelectionUI(){
- const count=pickedPlaceIds.size,route=currentPickerRoute(),ok=!!route&&routeIsCompatibleWithSelectedDay(route);
+ const count=pickedPlaceIds.size,route=currentPickerRoute();
  $("pickerSelectionCount").textContent=count+" selected";
- $("addSelectedPlaces").disabled=count===0||!ok;
+ $("addSelectedPlaces").disabled=count===0||!route;
  $("addSelectedPlaces").textContent=count?"＋ Add "+count+" selected place"+(count===1?"":"s"):"＋ Add selected places";
  const selected=pickerDay();
- if(!route&&selected&&selected.day.stops.some(s=>s.placeId))$("pickerHint").textContent="This day already contains places from more than one circuit. Remove the off-route places and add them to a different day before continuing.";
- else if(route&&!ok)$("pickerHint").textContent="This day already contains places outside this circuit. Remove the off-route places from this day and add them to another day.";
- else $("pickerHint").textContent="This day stays on one circuit. Places are listed in the recommended route order; choose a different day for another direction. Existing places in this itinerary won't be duplicated.";
+ if(!route)$("pickerHint").textContent="Choose a circuit or area, select the destinations you want, and add them to the day. You can repeat this with another group.";
+ else if(selected&&selected.day.stops.some(s=>s.placeId&&!route.placeIds.includes(s.placeId)))$("pickerHint").textContent="This day already includes places from another group. You can still add these selections; check the full route and travel time in Maps.";
+ else $("pickerHint").textContent="Select the places you want from this group. You can add more from another group later. RoamPlan does not optimize driving routes.";
 }
 function renderPickerPlaces(){
  const route=currentPickerRoute(),places=pickerFilteredPlaces();
@@ -211,29 +208,19 @@ function renderPickerPlaces(){
  updatePickerSelectionUI();
 }
 function handlePickerCircuitChange(){
- const selected=pickerDay();if(!selected)return;
  pickedPlaceIds.clear();pickedPlaceOrder=[];
  const route=currentPickerRoute();
- if(route&&!routeIsCompatibleWithSelectedDay(route)&&selected.day.stops.some(s=>s.placeId)){
-  toast("This circuit doesn't include the places already on this day. Choose a compatible circuit or switch to another day.");
- }
  if(route)$("pickerDuration").value=String(route.defaultDuration);
  renderPickerPlaces();
 }
 function openPlacePicker(){
  const t=active();if(!t){toast("Create an itinerary first");return;}
- if(!dailyBaseForTrip(t)){
-  toast("Enter where you're staying in 'Staying at / daily start' before choosing destinations.");
-  $("baseLocation").focus();
-  $("baseLocation").scrollIntoView({behavior:"smooth",block:"center"});
-  return;
- }
  pickedPlaceIds.clear();pickedPlaceOrder=[];
- $("pickerTripName").textContent="Choose a single route for this day. The catalogue will show only stops on that circuit and in suggested travel order.";
+ $("pickerTripName").textContent="Choose an area or circuit, select the destinations you want, and add them to your day. Choose stop order yourself; this planner does not optimize driving routes.";
  $("pickerDay").innerHTML=t.days.map((d,i)=>'<option value="'+i+'">Day '+(i+1)+(t.startDate?' · '+escapeHtml(formatDate(t.startDate,i)):"")+'</option>').join("");
  $("pickerDay").value=String(Math.min(activeDay,t.days.length-1));
  $("pickerSearch").value="";
- populatePickerAreas(t);
+ populatePickerAreas();
  configurePickerForDay();
  renderPickerPlaces();
  $("placePickerDialog").showModal();
@@ -243,8 +230,7 @@ function addPickedPlaces(){
  const selected=pickerDay(),route=currentPickerRoute();
  if(!selected||!route){toast("Choose a route circuit first.");return;}
  const dayIndex=selected.index,day=selected.day;if(!day.stops)day.stops=[];
- if(!circuitCompatible(day,route)){toast("This circuit doesn't include the places already on this day. Choose a compatible circuit or use another day.");return;}
- // Use the circuit's recommended sequence, regardless of checkbox click order.
+ // Add places from the selected group in that group's displayed sequence. The user can combine groups if desired.
  const ids=route.placeIds.filter(id=>pickedPlaceIds.has(id));
  if(!ids.length){toast("Select at least one destination from this route.");return;}
  const seen=new Set(t.days.flatMap(d=>d.stops||[]).flatMap(s=>[s.placeId?"place:"+s.placeId:"","name:"+String(s.name||"").trim().toLowerCase()]).filter(Boolean));
