@@ -51,6 +51,8 @@ On the itinerary planner page, use **Choose destinations** in the Day by day sec
 Each selected stop retains its place ID, map search, area/state, and a brief place overview. The **Maps** and **Place guide** links open the location or detail page. Mark a stop visited using its check control; it remains in the itinerary with an **Already visited** status, and the day/trip progress counters update. Trip and visited state remain in this browser's localStorage.
 
 
-### Route-aware day planning
+### Simple destination picker
 
-The destination picker uses curated route circuits instead of exposing the entire Coorg/nearby-region catalogue for a single day. Each circuit lists its places in recommended visit order; the planner orders selected stops along that sequence, stores the circuit on the day, and locks the day to that circuit so separate directions aren't silently mixed. To plan a different side of Coorg, choose a different day. The route groups are manually curated from regional travel guidance, not live Google Maps traffic or an automatic route optimisation API. Check current directions from your own stay before driving.
+The destination picker groups places into manually curated areas and circuits so users can identify the locations they want to visit. Choose a group, select destinations, set the starting time and duration, and add them to a day. You can reopen the picker and add places from another group to the same day; RoamPlan warns when several groups are combined but does not block your choice.
+
+RoamPlan is a static GitHub Pages app and does **not** optimize routes, calculate live road distances, or automatically choose a best stop order. Stops added from one group follow that group's listed sequence; when groups are combined, review or rearrange the itinerary yourself and use Google Maps to check the actual roads and travel times. This keeps the site simple and free until routing services are needed at a later scale.
