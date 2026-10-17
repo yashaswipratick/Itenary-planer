@@ -29,3 +29,12 @@ Crowd levels are user-entered estimates, not live crowd data. This app does not 
 
 ## License
 MIT. See [LICENSE](LICENSE).
+
+## Destination explorer
+
+The **Explore places** link opens a separate destination library at `destinations.html`. It currently includes a Coorg/Kodagu guide grouped into practical regional circuits, with country → state → city/area selectors, place search, offbeat labels, nearby pairing suggestions, Google Maps search links, and dedicated detail pages at `place.html?id=<place-id>`.
+
+- Destination data lives in `destinations-data.js`; the guide works as a static GitHub Pages site and requires no server or paid API key.
+- Place detail pages include a locally written overview, suggested visit time, best-time guidance, practical access notes and related places.
+- Where a standalone Wikipedia article is available, the detail page requests the article's introductory extract from Wikipedia and links to the full article. If no dedicated article is available or Wikipedia cannot be reached, the page clearly shows a fallback note rather than inventing a Wikipedia summary.
+- Nearby pairings are curated regional suggestions, not real-time routing or distance estimates. Verify opening hours, permissions, road access, weather and safety locally.
