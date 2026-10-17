@@ -217,7 +217,7 @@ function updatePickerRouteSummary(){
  const chips=route.placeIds.map((id,i)=>{const p=placeById(id);return p?'<span class="route-stop-chip"><i>'+(i+1)+'</i>'+escapeHtml(p.name)+'</span>':"";}).join("");
  const lock=(selected.day.routeId===route.id)?'<span class="route-locked-pill">Day '+(selected.index+1)+' · current route</span>':"";
  const base=dailyBaseForTrip(selected.trip);
- const sourceNote=base?'<p class="route-source-note"><b>Starts from:</b> '+escapeHtml(base)+'. Route suggestions are prioritized around this stay; verify live driving directions before leaving.</p>':'<p class="route-source-note">Add your hotel or resort in “Staying at / daily start” to prioritize circuits around your base.</p>';
+ const sourceNote=base?'<p class="route-source-note"><b>Starting point:</b> '+escapeHtml(base)+'. This location helps pick a regional circuit. <b>Important:</b> stop order is currently a curated preset, not a live road-distance optimization; Google Maps calculates directions for this chosen order.</p>':'<p class="route-source-note">Enter your hotel or resort in “Staying at / daily start” before choosing destinations. This helps select a relevant regional circuit.</p>';
  panel.innerHTML='<div class="route-summary-top"><div><p class="route-summary-kicker">CURATED DAY CIRCUIT</p><h3>'+escapeHtml(route.title)+'</h3><p class="route-direction">'+escapeHtml(route.direction)+'</p></div>'+lock+'</div><p class="route-summary-description">'+escapeHtml(route.description)+'</p>'+sourceNote+'<div class="route-stop-sequence"><span class="route-sequence-label">SUGGESTED ORDER</span><div class="route-stop-chips">'+chips+'</div></div>'+conflictMessage;
 }
 function configurePickerForDay(){
@@ -272,6 +272,12 @@ function handlePickerCircuitChange(){
 }
 function openPlacePicker(){
  const t=active();if(!t){toast("Create an itinerary first");return;}
+ if(!dailyBaseForTrip(t)){
+  toast("Enter where you're staying in 'Staying at / daily start' before choosing destinations.");
+  $("baseLocation").focus();
+  $("baseLocation").scrollIntoView({behavior:"smooth",block:"center"});
+  return;
+ }
  pickedPlaceIds.clear();pickedPlaceOrder=[];
  $("pickerTripName").textContent="Choose a single route for this day. The catalogue will show only stops on that circuit and in suggested travel order.";
  $("pickerDay").innerHTML=t.days.map((d,i)=>'<option value="'+i+'">Day '+(i+1)+(t.startDate?' · '+escapeHtml(formatDate(t.startDate,i)):"")+'</option>').join("");
