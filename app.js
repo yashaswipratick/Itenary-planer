@@ -1,5 +1,5 @@
 (()=>{"use strict";
-const $=id=>document.getElementById(id),KEY="roamplan.itineraries.v1",catalog=window.ROAMPLANDATA||{places:[]};let trips=[],activeId=null,activeDay=0,toastTimer;const pickedPlaceIds=new Set();let pickedPlaceOrder=[];
+const $=id=>document.getElementById(id),KEY="roamplan.itineraries.v1",catalog=window.ROAMPLANDATA||{places:[]};let trips=[],activeId=null,activeDay=0,toastTimer,pickerSourceDayIndex=0;const pickedPlaceIds=new Set();let pickedPlaceOrder=[];
 const types={famous:"Famous place","hidden-gem":"Hidden gem",offbeat:"Offbeat",local:"Local favourite",food:"Food / meal",break:"Rest / buffer"};
 const crowdLabels={low:"Less crowded",medium:"Moderate crowd",high:"Crowded",unknown:"Crowd unknown"};
 const uid=()=>Math.random().toString(36).slice(2,10)+Date.now().toString(36);
@@ -84,11 +84,23 @@ function editStop(id){const t=active(),s=id?t.days[activeDay].stops.find(x=>x.id
 function saveStop(){const t=active(),list=t.days[activeDay].stops,id=$("stopId").value;let s=list.find(x=>x.id===id);if(!s){s={id:uid(),done:false};list.push(s);}Object.assign(s,{name:$("stopName").value.trim(),location:$("stopLocation").value.trim(),time:$("stopTime").value,duration:Number($("stopDuration").value)||60,type:$("stopType").value,crowd:$("stopCrowd").value,notes:$("stopNotes").value.trim()});list.sort((a,b)=>(a.time||"99:99").localeCompare(b.time||"99:99"));$("stopDialog").close();save();toast("Stop saved");}
 function removeStop(){const t=active(),id=$("stopId").value;t.days[activeDay].stops=t.days[activeDay].stops.filter(s=>s.id!==id);$("stopDialog").close();save();toast("Stop deleted");}
 function mapDay(){
- const t=active(),stops=t.days[activeDay].stops.filter(s=>s.location||s.name);
+ const t=active(),day=t.days[activeDay],stops=(day.stops||[]).filter(s=>s.location||s.name);
  if(!stops.length){toast("Add a destination first");return;}
- const places=stops.map(s=>s.location||s.name),origin=places.shift(),destination=places.pop()||origin;
+ const places=stops.map(s=>s.location||s.name),source=String(day.sourceLocation||"").trim();
+ let origin,destination,waypoints;
+ if(source){
+  // With a source, all planned stops become destination/waypoints in their current itinerary order.
+  origin=source;
+  destination=places[places.length-1];
+  waypoints=places.slice(0,-1);
+ }else{
+  // Keep the previous behaviour for older plans without a saved source location.
+  origin=places.shift();
+  destination=places.pop()||origin;
+  waypoints=places;
+ }
  let url="https://www.google.com/maps/dir/?api=1&origin="+encodeURIComponent(origin)+"&destination="+encodeURIComponent(destination)+"&travelmode=driving";
- if(places.length)url+="&waypoints="+encodeURIComponent(places.join("|"));
+ if(waypoints.length)url+="&waypoints="+encodeURIComponent(waypoints.join("|"));
  window.open(url,"_blank","noopener");
 }
 function share(){const t=active();if(!t)return;try{const payload=btoa(unescape(encodeURIComponent(JSON.stringify(t))));const url=location.origin+location.pathname+"#trip="+payload;navigator.clipboard.writeText(url).then(()=>toast("Share link copied")).catch(()=>prompt("Copy this itinerary link",url));}catch{toast("Could not create share link");}}
@@ -173,13 +185,26 @@ function updatePickerRouteSummary(){
 function configurePickerForDay(){
  const selected=pickerDay();if(!selected)return;
  const day=selected.day;
+ pickerSourceDayIndex=selected.index;
  const route=routeById(day.routeId)||routeForDay(day);
  const routeId=route?route.id:"";
  $("pickerArea").value=routeId;
  $("pickerArea").disabled=false;
  $("pickerStartTime").value=suggestedStartTime(selected.trip,selected.index);
  $("pickerDuration").value=String(route?route.defaultDuration:60);
+ $("pickerSourceLocation").value=day.sourceLocation||"";
  updatePickerRouteSummary();
+}
+function syncPickerSourceLocation(){
+ const t=active(),day=t&&t.days[pickerSourceDayIndex];
+ if(!day)return;
+ const value=$("pickerSourceLocation").value;
+ if((day.sourceLocation||"")===value)return;
+ day.sourceLocation=value;
+ try{
+  localStorage.setItem(KEY,JSON.stringify(trips));
+  $("saveStatus").textContent="● All changes saved";
+ }catch(e){$("saveStatus").textContent="Could not save locally";}
 }
 function pickerFilteredPlaces(){
  const q=$("pickerSearch").value.trim().toLowerCase(),route=currentPickerRoute();
@@ -216,7 +241,7 @@ function handlePickerCircuitChange(){
 function openPlacePicker(){
  const t=active();if(!t){toast("Create an itinerary first");return;}
  pickedPlaceIds.clear();pickedPlaceOrder=[];
- $("pickerTripName").textContent="Choose an area or circuit, then check destinations in the order you want to visit them. Add them to your day and use Google Maps to review driving directions.";
+ $("pickerTripName").textContent="Choose an area or circuit, optionally set a starting location for the selected day, then check destinations in the order you want to visit them. Add them to your day and use Google Maps to review driving directions.";
  $("pickerDay").innerHTML=t.days.map((d,i)=>'<option value="'+i+'">Day '+(i+1)+(t.startDate?' · '+escapeHtml(formatDate(t.startDate,i)):"")+'</option>').join("");
  $("pickerDay").value=String(Math.min(activeDay,t.days.length-1));
  $("pickerSearch").value="";
@@ -227,6 +252,7 @@ function openPlacePicker(){
 }
 function addPickedPlaces(){
  const t=active();if(!t){toast("Create an itinerary first");return;}
+ syncPickerSourceLocation();
  const selected=pickerDay(),route=currentPickerRoute();
  if(!selected||!route){toast("Choose a route circuit first.");return;}
  const dayIndex=selected.index,day=selected.day;if(!day.stops)day.stops=[];
@@ -272,10 +298,11 @@ function addPickedPlaces(){
 }
 
 $("pickPlacesBtn").onclick=openPlacePicker;
-$("closePicker").onclick=$("cancelPlacePicker").onclick=()=>$("placePickerDialog").close();
+$("closePicker").onclick=$("cancelPlacePicker").onclick=()=>{syncPickerSourceLocation();$("placePickerDialog").close();};
 $("pickerSearch").addEventListener("input",renderPickerPlaces);
+$("pickerSourceLocation").addEventListener("input",syncPickerSourceLocation);
 $("pickerArea").addEventListener("change",handlePickerCircuitChange);
-$("pickerDay").addEventListener("change",()=>{pickedPlaceIds.clear();pickedPlaceOrder=[];configurePickerForDay();renderPickerPlaces();});
+$("pickerDay").addEventListener("change",()=>{syncPickerSourceLocation();pickedPlaceIds.clear();pickedPlaceOrder=[];configurePickerForDay();renderPickerPlaces();});
 $("pickerPlaceList").addEventListener("change",e=>{const input=e.target.closest(".picker-choice");if(!input)return;const id=input.value;if(input.checked){if(!pickedPlaceIds.has(id)){pickedPlaceIds.add(id);pickedPlaceOrder.push(id);}}else{pickedPlaceIds.delete(id);pickedPlaceOrder=pickedPlaceOrder.filter(x=>x!==id);}const row=input.closest(".picker-place");if(row)row.classList.toggle("selected",input.checked);updatePickerSelectionUI();});
 $("addSelectedPlaces").onclick=addPickedPlaces;
 $("newTrip").onclick=$("newTrip2").onclick=$("emptyCreate").onclick=openCreate;$("cancelCreate").onclick=()=>$("tripDialog").close();$("createTripSubmit").onclick=e=>{e.preventDefault();if($("newName").value.trim()&&$("newDestination").value.trim())createTrip();};$("tripForm").addEventListener("submit",e=>{e.preventDefault();createTrip();});$("stopForm").addEventListener("submit",e=>{e.preventDefault();saveStop();});
