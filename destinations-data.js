@@ -2,7 +2,7 @@
    Summaries are editorial guides. Where a Wikipedia article exists, place.html also loads its current introduction via the public Wikipedia API. */
 window.ROAMPLANDATA = {
   countries: [{ value: "India", label: "India" }],
-  states: [{ value: "Karnataka", label: "Karnataka" }],
+  states: [{ value: "Karnataka", label: "Karnataka" }, { value: "Kerala", label: "Kerala" }],
   cities: [
     { value: "Coorg", label: "Coorg — all areas" },
     { value: "Madikeri", label: "Madikeri & central Coorg" },
@@ -12,7 +12,12 @@ window.ROAMPLANDATA = {
     { value: "Bhagamandala", label: "Bhagamandala & Talakaveri" },
     { value: "Kakkabe / Virajpet", label: "Kakkabe & Virajpet" },
     { value: "Kutta", label: "Kutta & Nagarahole" },
-    { value: "Galibeedu", label: "Galibeedu countryside" }
+    { value: "Galibeedu", label: "Galibeedu countryside" },
+    { value: "Kerala Border", label: "Kerala border escapes — all" },
+    { value: "Ullikkal", label: "Ullikkal — Kalanki" },
+    { value: "Kanjirakolly", label: "Kanjirakolly — Alakapuri Falls" },
+    { value: "Valiya Areekamala", label: "Valiya Areekamala — viewpoint" },
+    { value: "Vellad / Kudianmala", label: "Vellad / Kudianmala — Ezharakund" }
   ],
   places: [
     {
@@ -202,16 +207,70 @@ window.ROAMPLANDATA = {
       why:"A worthwhile alternative if you prefer a less urbanised, forest-framed waterfall visit.",
       bestTime:"Only when access is open and weather is safe; avoid periods of heavy rain.",
       notes:"The rocks and water can be dangerous. Do not swim or bathe, and confirm access with a local source before travelling specifically for the falls.",
-      wikiTitle:"Chelavara Falls", nearby:["nalknad-palace"]
+      wikiTitle:"Chelavara Falls", nearby:["nalknad-palace","kabbe-betta-view","thadiyandamol-peak"]
     },
     {
       id:"nalknad-palace", name:"Nalknad Palace", city:"Kakkabe / Virajpet", group:"Kakkabe & Virajpet",
       tag:"OFFBEAT · Heritage", crowd:"Usually quieter", duration:"30–60 min if open", mapQuery:"Nalknad Palace Yevakapadi Kodagu",
-      overview:"A small historic palace in the countryside near the Tadiandamol trekking area, associated with the Haleri rulers of Kodagu. It offers a quieter heritage experience than Madikeri's central attractions.",
-      why:"A good addition for people interested in local history and rural architecture.",
-      bestTime:"Daylight hours; confirm the site's opening and access locally before making the detour.",
-      notes:"Access can be inconsistent. Combine with a Kakkabe-area outing rather than treating it as a quick Madikeri add-on.",
-      wikiTitle:"Nalknad Palace", nearby:["chelavara-falls"]
+      overview:"A protected historic palace near Yevakapadi in Kodagu, built between 1792 and 1794 by Haleri ruler Dodda Veerarajendra. Its timber architecture, paintings and carvings connect the site to the region's royal history.",
+      why:"A good heritage stop to pair with the Thadiyandamol trek or Kabbe Betta View, rather than a quick add-on to central Madikeri.",
+      bestTime:"Daylight hours; Karnataka Tourism generally lists daytime access, but confirm current opening and entry arrangements locally.",
+      notes:"The palace is maintained as a protected monument and facilities are limited. Treat it as a short heritage visit; do not assume all rooms are open. The district tourism page says it is about 41 km from Madikeri and near Thadiyandamol.",
+      wikiTitle:"Nalknad Palace", officialUrl:"https://kodagu.nic.in/en/tourist-place/nalknad-palace/", nearby:["thadiyandamol-peak","kabbe-betta-view","chelavara-falls"]
+    },
+    {
+      id:"kabbe-betta-view", name:"Kabbe Betta View", city:"Kakkabe / Virajpet", group:"Kakkabe & Virajpet",
+      tag:"OFFBEAT · Viewpoint · Hills", crowd:"Usually quieter", duration:"60–120 min plus approach", mapQuery:"Kabbe Betta View Chelavara Karnataka",
+      overview:"Kabbe Betta View is a hill-and-ridge viewpoint in the Chelavara/Yevakapadi side of Kodagu. The surrounding Kabbe Hills are known for grassy ridgelines, forested slopes and wide Western Ghats views.",
+      why:"A quieter alternative to the busiest Coorg viewpoints, especially for travellers who enjoy open ridges, misty hills and a more rural approach.",
+      bestTime:"Choose a clear morning or a period when the forecast gives good visibility; mist can hide the views.",
+      notes:"Road access and the final approach can be rural and uneven. Confirm the exact pin and whether private-estate access or a local jeep is needed. Visit in daylight, don't cross fences or enter restricted forest areas, and avoid exposed slopes in rain or strong wind.",
+      wikiTitle:"", officialUrl:"https://jlrexplore.com/explore/unexplored-areas/the-hills-of-kabbe", nearby:["nalknad-palace","thadiyandamol-peak","chelavara-falls"]
+    },
+    {
+      id:"thadiyandamol-peak", name:"Thadiyandamol (Tadiandamol)", city:"Kakkabe / Virajpet", group:"Kakkabe & Virajpet",
+      tag:"OFFBEAT · Trekking · Peak", crowd:"Moderate on weekends", duration:"Half day to full day", mapQuery:"Thadiyandamol Trek Base Camp Yevakapadi Kodagu",
+      overview:"Thadiyandamol is the highest mountain in Kodagu, rising to about 1,748 metres in the Western Ghats. Its hike passes through forest, shola patches and open grassland slopes, with wide views near the summit.",
+      why:"A top pick for a dedicated hiking day if you prefer a mountain trail over roadside viewpoints. Nalknad Palace sits nearby at the foothills and can be paired only if time and access allow.",
+      bestTime:"The Kodagu district's adventure guidance recommends December to May for trekking; weather and trail conditions still need checking.",
+      notes:"Plan this as the main activity for the day. The official eco-tourism portal lists a forest-check-post base camp and a guided/booking process; confirm permits, reporting time and current trail status before travelling. Carry grippy footwear, water and rain protection. Leeches can be common in wet periods; don't attempt the trail near closing time.",
+      wikiTitle:"Tadiandamol", officialUrl:"https://trek.kodaguecotourism.com/trailDetail/26/Forest%20Check%20Post%20Base%20Camp%20-%20Thadiyandamol", nearby:["nalknad-palace","kabbe-betta-view","chelavara-falls"]
+    },
+    {
+      id:"kalanki-queen-of-hills", name:"Kalanki — The Queen of Hills", city:"Ullikkal", state:"Kerala", region:"kerala-border", district:"Kannur", group:"Kerala Border Hills & Viewpoints",
+      tag:"OFFBEAT · Hill Viewpoint", crowd:"Crowd varies", duration:"45–90 min", mapQuery:"Kalanki The Queen Of Hills Ullikkal Kannur Kerala",
+      overview:"Kalanki is a hill viewpoint near Mattara in Ullikkal/Vayathur, Kannur district, Kerala, close to the Kerala–Karnataka boundary. The draw is the hilly landscape, green ridges and views toward the Karnataka countryside.",
+      why:"A good border-region extension for a Coorg trip if you want to explore the lesser-known hill country on the Kerala side rather than treat every nearby hill as part of Coorg.",
+      bestTime:"Clear mornings for long views or late afternoon if local access and weather are favourable.",
+      notes:"This is in Kerala, not Kodagu district. The approach may use narrow local roads; verify the exact pin and road condition, go in daylight and don't assume there are public facilities at the viewpoint. Kalanki is also listed by Kerala's Vayathur Village Office.",
+      wikiTitle:"Ulikkal", wikiLabel:"Ulikkal, Kannur — Wikipedia context", officialUrl:"https://landrevenue.kerala.gov.in/core/Office_websites/contactus.php?nm=10131013Vayathurvillageoffice", nearby:["kabbe-betta-view","thadiyandamol-peak","alakapuri-waterfalls","areekamala-viewpoint"]
+    },
+    {
+      id:"alakapuri-waterfalls", name:"Alakapuri Waterfalls", city:"Kanjirakolly", state:"Kerala", region:"kerala-border", district:"Kannur", group:"Kerala Border Waterfalls",
+      tag:"OFFBEAT · Waterfall", crowd:"Crowd varies by season", duration:"60–90 min", mapQuery:"Alakapuri Waterfalls Kanjirakolly Kannur Kerala",
+      overview:"Alakapuri Waterfalls is a multi-stage cascade in the Kanjirakolly area of Kannur district, near the Kerala–Karnataka border. Kerala's District Tourism Promotion Council describes a roughly 200-foot cascade set among Western Ghats hills and valleys, with the waterfall's stream originating in forested Karnataka.",
+      why:"A compelling border-side waterfall stop, with nearby hills and the Sasipara viewpoint making it possible to build a fuller nature outing.",
+      bestTime:"The flow can be strongest during the monsoon, but heavy rain can also make the approach unsafe. Check local conditions before setting out.",
+      notes:"The DTPC Kannur page lists a road-and-parking approach followed by about a 10-minute walk, and published visitor hours of 9 AM–5 PM; verify current opening, fee, trail condition and safety rules before visiting. Avoid entering the water or climbing wet rocks.",
+      wikiTitle:"", officialUrl:"https://www.dtpckannur.com/destination/alakapuri-waterfalls", nearby:["kalanki-queen-of-hills","areekamala-viewpoint","ezharakund-waterfalls"]
+    },
+    {
+      id:"areekamala-viewpoint", name:"Areekamala Viewpoint (Valiya Areekamala)", city:"Valiya Areekamala", state:"Kerala", region:"kerala-border", district:"Kannur", group:"Kerala Border Hills & Viewpoints",
+      tag:"OFFBEAT · Hill Views", crowd:"Usually quieter", duration:"45–90 min", mapQuery:"Areekamala View Point Valiya Areekamala Kannur Kerala",
+      overview:"Valiya Areekamala is a highland area in Eruvessi Panchayat, Kannur district, Kerala. Local listings and the Kerala Tourism location directory identify Areekamala near Kudiyanmala; the viewpoint experience is primarily about the surrounding countryside, ridges and sunset or sunrise views.",
+      why:"A slower border-country stop for scenic hill views and a quieter rural atmosphere. It can be paired with other Kannur-side highland locations, but exact access matters.",
+      bestTime:"Visit in daylight when visibility is good; confirm a safe viewpoint and route with a local host before timing a sunrise or sunset visit.",
+      notes:"Reliable public details for a formal, managed viewpoint and its facilities are limited. Do not assume viewpoint signage, parking, toilets or unrestricted land access. Confirm the exact pin locally and respect private property.",
+      wikiTitle:"", officialUrl:"https://www.keralatourism.org/routes-locations/areekkamala/id/947", nearby:["kalanki-queen-of-hills","alakapuri-waterfalls","ezharakund-waterfalls"]
+    },
+    {
+      id:"ezharakund-waterfalls", name:"Ezharakund Waterfalls", city:"Vellad / Kudianmala", state:"Kerala", region:"kerala-border", district:"Kannur", group:"Kerala Border Waterfalls",
+      tag:"OFFBEAT · Waterfall", crowd:"Moderate; seasonal", duration:"60–120 min", mapQuery:"Ezharakund Waterfalls Pottenplave Vellad Kannur Kerala",
+      overview:"Ezharakund (also written Ezharakundu) is a group of seven waterfalls in the Kudianmala area of Kannur district. Kerala Tourism explains that the name refers to 'seven and a half pits' in Malayalam and describes it as a lush, multi-cascade attraction maintained by the District Tourism Promotion Council.",
+      why:"An interesting waterfall outing for travellers exploring the rural highlands north of Coorg, especially if they want to combine it with Alakapuri Falls or Areekamala.",
+      bestTime:"Visit in daylight when access is open. Avoid heavy-rain periods, when water levels and rocks can be dangerous.",
+      notes:"Kerala Tourism places Ezharakund in Kudianmala and lists it about 50 km from Kannur town; your supplied pin is around Pottenplave/Vellad. Follow posted rules, stay on approved paths and do not assume swimming is allowed.",
+      wikiTitle:"", officialUrl:"https://www.keralatourism.org/malabar/video-gallery/ezharakund-waterfalls/1078", nearby:["alakapuri-waterfalls","areekamala-viewpoint","kalanki-queen-of-hills"]
     },
     {
       id:"iruppu-falls", name:"Iruppu Falls", city:"Kutta", group:"Kutta & Nagarahole",
