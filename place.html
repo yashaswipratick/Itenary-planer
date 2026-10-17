@@ -1,0 +1,36 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#f4f5ef"><meta name="description" content="Explore a Coorg destination on RoamPlan with overview, visit tips, Google Maps and Wikipedia context.">
+<title>Place guide — RoamPlan</title>
+<link rel="stylesheet" href="styles.css"><link rel="stylesheet" href="explorer.css">
+</head>
+<body class="explorer-page place-page">
+<header class="explore-top">
+  <a class="brand explore-brand" href="index.html"><span class="brand-icon">⌁</span><span><b>RoamPlan</b><small>TRAVEL, YOUR WAY</small></span></a>
+  <nav aria-label="Main navigation"><a href="index.html">My itineraries</a><a class="current" href="destinations.html">Explore destinations</a></nav>
+</header>
+<main class="explore-main place-main">
+  <div class="breadcrumbs"><a href="destinations.html">Explore destinations</a><span>›</span><a href="destinations.html">Coorg, Karnataka</a><span>›</span><span id="crumbPlace">Place guide</span></div>
+  <section class="place-hero">
+    <div class="place-hero-copy"><p class="eyebrow">DESTINATION FIELD GUIDE</p><p id="placeArea" class="hero-kicker">KODAGU · KARNATAKA</p><h1 id="placeTitle">Place guide</h1><p id="placeDek" class="place-dek"></p><div id="placeTags" class="hero-tags"></div></div>
+    <div class="place-hero-mark"><span id="placeEmoji">⌖</span><b>ROAMPLAN<br>FIELD NOTES</b></div>
+  </section>
+  <section class="place-toolbar"><a class="btn" href="destinations.html">← All Coorg places</a><a id="mapLink" class="btn dark" href="#" target="_blank" rel="noopener">↗ Open in Google Maps</a><a id="wikiSearch" class="btn" href="#" target="_blank" rel="noopener">Wikipedia ↗</a></section>
+  <div class="place-detail-layout">
+    <div class="place-detail-main">
+      <section class="detail-panel overview-panel"><p class="eyebrow green">THE OVERVIEW</p><h2>What is this place?</h2><p id="placeOverview" class="detail-copy"></p><p id="placeWhy" class="detail-copy secondary-copy"></p></section>
+      <section class="detail-panel wiki-panel" id="wikiPanel"><div class="wiki-head"><div class="wiki-mark">W</div><div><p class="eyebrow green">WIKIPEDIA CONTEXT</p><h2 id="wikiHeading">Checking Wikipedia…</h2></div><span id="wikiStatus" class="wiki-status">Loading summary</span></div><p id="wikiSummary" class="detail-copy">When an article is available, its introductory summary will appear here.</p><a id="wikiArticleLink" class="text-link" href="#" target="_blank" rel="noopener">Open Wikipedia article ↗</a></section>
+      <section class="detail-panel"><p class="eyebrow green">PLAN YOUR VISIT</p><h2>Useful things to know</h2><div class="visit-facts"><div><span>RECOMMENDED TIME</span><strong id="durationFact">—</strong></div><div><span>BEST TIME</span><strong id="bestTimeFact">—</strong></div><div><span>AREA</span><strong id="groupFact">—</strong></div><div><span>CROWD NOTE</span><strong id="crowdFact">—</strong></div></div><div class="practical-note"><b>Before you go</b><p id="visitNotes"></p></div></section>
+      <section class="nearby-detail-block"><div class="nearby-head"><div><p class="eyebrow green">KEEP EXPLORING</p><h2>Nearby places to pair with this visit</h2><p class="muted">Suggestions from the same regional sightseeing circuit; not live distance or traffic estimates.</p></div></div><div id="detailNearby" class="place-grid nearby-grid"></div></section>
+    </div>
+    <aside class="place-detail-aside">
+      <div class="detail-panel quick-card"><p class="eyebrow green">AT A GLANCE</p><h3 id="quickTitle">Place details</h3><div class="quick-row"><span>📍</span><div><small>Location</small><b id="quickLocation">—</b></div></div><div class="quick-row"><span>◷</span><div><small>Suggested visit</small><b id="quickDuration">—</b></div></div><div class="quick-row"><span>✦</span><div><small>Experience</small><b id="quickType">—</b></div></div><a id="directionsLink" class="primary full-width" href="#" target="_blank" rel="noopener">Get directions ↗</a></div>
+      <div class="detail-panel guide-card"><h3>Travel thoughtfully</h3><p>Some waterfalls, treks, wildlife areas and reservoir roads have seasonal restrictions. Verify local access and weather before leaving, and avoid travelling to remote pins after dark.</p><a href="destinations.html">Browse the full Coorg guide →</a></div>
+    </aside>
+  </div>
+  <footer class="explore-footer"><a href="destinations.html">← Back to destinations</a><span>Place summaries are guides, not live access updates.</span></footer>
+</main>
+<script src="destinations-data.js"></script><script src="place.js"></script>
+</body></html>
