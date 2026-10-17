@@ -1,5 +1,5 @@
 (()=>{"use strict";
-const $=id=>document.getElementById(id),KEY="roamplan.itineraries.v1";let trips=[],activeId=null,activeDay=0,toastTimer;
+const $=id=>document.getElementById(id),KEY="roamplan.itineraries.v1",catalog=window.ROAMPLANDATA||{places:[]};let trips=[],activeId=null,activeDay=0,toastTimer;const pickedPlaceIds=new Set();let pickedPlaceOrder=[];
 const types={famous:"Famous place","hidden-gem":"Hidden gem",offbeat:"Offbeat",local:"Local favourite",food:"Food / meal",break:"Rest / buffer"};
 const crowdLabels={low:"Less crowded",medium:"Moderate crowd",high:"Crowded",unknown:"Crowd unknown"};
 const uid=()=>Math.random().toString(36).slice(2,10)+Date.now().toString(36);
@@ -27,7 +27,15 @@ function toast(msg){const el=$("toast");el.textContent=msg;el.classList.add("sho
 function progress(t){const all=t.days.flatMap(d=>d.stops);return{done:all.filter(s=>s.done).length,total:all.length,pct:all.length?Math.round(100*all.filter(s=>s.done).length/all.length):0};}
 function render(){const t=active();$("tripCount").textContent=trips.length;$("tripList").innerHTML=trips.map(x=>'<button class="trip-link '+(x.id===activeId?'active':'')+'" data-trip="'+x.id+'">⌁ &nbsp;'+escapeHtml(x.name||x.destination||"Untitled trip")+'</button>').join("");$("workspace").classList.toggle("hidden",!t);$("emptyState").classList.toggle("hidden",!!t);if(!t){$("pageTitle").textContent="Plan a trip worth remembering.";return;}
 const p=progress(t);$("crumb").textContent=t.name||"My itinerary";$("pageTitle").textContent=t.name||"Plan a trip worth remembering.";$("statDestination").textContent=t.destination||"Add destination";$("statDays").textContent=t.days.length+" "+(t.days.length===1?"day":"days");$("statVisited").textContent=p.done+" / "+p.total;$("statProgress").textContent=p.pct+"%";$("progressBar").style.width=p.pct+"%";setVal("tripName",t.name);setVal("destination",t.destination);setVal("origin",t.origin);setVal("startDate",t.startDate);setVal("dayCount",t.days.length);activeDay=Math.min(activeDay,t.days.length-1);$("dayTabs").innerHTML=t.days.map((d,i)=>'<button class="day-tab '+(i===activeDay?'active':'')+'" data-day="'+i+'">Day '+(i+1)+'</button>').join("");const day=t.days[activeDay];$("dayTitle").textContent="Day "+(activeDay+1);$("dayDate").textContent=formatDate(t.startDate,activeDay);const done=day.stops.filter(s=>s.done).length;$("dayProgress").textContent=done+" / "+day.stops.length+" done";$("stopList").innerHTML=day.stops.length?day.stops.map((s,i)=>renderStop(s,i)).join(""):'<div class="empty"><h2>A day with possibilities.</h2><p>Add the first place, meal or activity to start planning.</p><button class="primary" data-add="destination">＋ Add a stop</button></div>'; }
-function renderStop(s,i){const loc=s.location||s.name;const map="https://www.google.com/maps/search/?api=1&query="+encodeURIComponent(loc);const crowd=s.crowd||"unknown";return '<article class="stop-card '+(s.done?'done':'')+'" data-stop="'+s.id+'"><button class="stop-check" data-action="toggle" data-id="'+s.id+'" aria-label="'+(s.done?"Mark not visited":"Mark visited")+'">'+(s.done?"✓":"")+'</button><div class="time-rail">'+escapeHtml(s.time||"Anytime")+'<br><span style="font-weight:500;color:#92988f">'+(Number(s.duration)||0)+' min</span></div><div class="stop-main"><div class="stop-title-row"><h4 class="stop-title">'+escapeHtml(s.name)+'</h4><span class="tag '+escapeHtml(s.type)+'">'+escapeHtml(types[s.type]||"Activity")+'</span></div><div class="stop-meta"><span class="crowd '+escapeHtml(crowd)+'">● '+escapeHtml(crowdLabels[crowd]||crowdLabels.unknown)+'</span>'+(s.location?'<span>⌖ '+escapeHtml(s.location)+'</span>':"")+'</div>'+(s.notes?'<p class="stop-notes">'+escapeHtml(s.notes)+'</p>':"")+'</div><div class="stop-actions"><a class="mini" href="'+map+'" target="_blank" rel="noopener">↗ Maps</a><button class="mini" data-action="edit" data-id="'+s.id+'">Edit</button><button class="mini" data-action="move" data-id="'+s.id+'" title="Move stop later in the day">↓</button></div></article>';}
+function renderStop(s,i){
+ const loc=s.location||s.name;
+ const map="https://www.google.com/maps/search/?api=1&query="+encodeURIComponent(loc);
+ const crowd=s.crowd||"unknown";
+ const stateTag=s.done?'<span class="visit-state">✓ Already visited</span>':'<span class="planned-state">Planned</span>';
+ const detailLink=s.placeId?'<a class="mini" href="place.html?id='+encodeURIComponent(s.placeId)+'" target="_blank" rel="noopener">↗ Place guide</a>':"";
+ const region=s.placeGroup?'<span>⌖ '+escapeHtml(s.placeGroup)+(s.placeState?', '+escapeHtml(s.placeState):"")+'</span>':"";
+ return '<article class="stop-card '+(s.done?'done':'')+'" data-stop="'+s.id+'"><button class="stop-check" data-action="toggle" data-id="'+s.id+'" aria-label="'+(s.done?"Mark not visited":"Mark visited")+'" aria-pressed="'+(s.done?'true':'false')+'">'+(s.done?"✓":"")+'</button><div class="time-rail">'+escapeHtml(s.time||"Anytime")+'<br><span style="font-weight:500;color:#92988f">'+(Number(s.duration)||0)+' min</span></div><div class="stop-main"><div class="stop-title-row"><h4 class="stop-title">'+escapeHtml(s.name)+'</h4><span class="tag '+escapeHtml(s.type)+'">'+escapeHtml(types[s.type]||"Activity")+'</span>'+stateTag+'</div><div class="stop-meta"><span class="crowd '+escapeHtml(crowd)+'">● '+escapeHtml(crowdLabels[crowd]||crowdLabels.unknown)+'</span>'+(s.location?'<span>⌖ '+escapeHtml(s.location)+'</span>':"")+region+'</div>'+(s.notes?'<p class="stop-notes">'+escapeHtml(s.notes)+'</p>':"")+'</div><div class="stop-actions"><a class="mini" href="'+map+'" target="_blank" rel="noopener">↗ Maps</a>'+detailLink+'<button class="mini" data-action="edit" data-id="'+s.id+'">Edit</button><button class="mini" data-action="move" data-id="'+s.id+'" title="Move stop later in the day">↓</button></div></article>';
+}
 function syncFields(){const t=active();if(!t)return;t.name=$("tripName").value;t.destination=$("destination").value;t.origin=$("origin").value;t.startDate=$("startDate").value;const n=Number($("dayCount").value);while(t.days.length<n)t.days.push({stops:[]});if(t.days.length>n)t.days=t.days.slice(0,n);activeDay=Math.min(activeDay,t.days.length-1);save();}
 function openCreate(){ $("tripForm").reset();$("newDate").value="";$("tripDialog").showModal();}
 function createTrip(){const t=makeTrip({name:$("newName").value.trim(),destination:$("newDestination").value.trim(),origin:$("newOrigin").value.trim(),startDate:$("newDate").value,days:$("newDays").value,template:$("starterTemplate").checked});trips.unshift(t);activeId=t.id;activeDay=0;$("tripDialog").close();save();toast("Your itinerary is ready");}
@@ -38,6 +46,91 @@ function mapDay(){const t=active(),stops=t.days[activeDay].stops.filter(s=>s.loc
 function share(){const t=active();if(!t)return;try{const payload=btoa(unescape(encodeURIComponent(JSON.stringify(t))));const url=location.origin+location.pathname+"#trip="+payload;navigator.clipboard.writeText(url).then(()=>toast("Share link copied")).catch(()=>prompt("Copy this itinerary link",url));}catch{toast("Could not create share link");}}
 function exportTrip(){const t=active();const blob=new Blob([JSON.stringify(t,null,2)],{type:"application/json"});const a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download=(t.name||"itinerary").toLowerCase().replace(/[^a-z0-9]+/g,"-")+".json";a.click();URL.revokeObjectURL(a.href);toast("Itinerary exported");}
 function addSimple(type){editStop();setVal("stopType",type);if(type==="food")setVal("stopName","Meal / break");else setVal("stopName","New destination");}
+function currentTripLabel(t){return (t.name||"Untitled itinerary")+" · "+(t.destination||"no destination set");}
+function toMinutes(clock){const parts=String(clock||"09:00").split(":").map(Number);return (parts[0]||0)*60+(parts[1]||0);}
+function fromMinutes(value){const n=Math.max(0,value)%1440;return String(Math.floor(n/60)).padStart(2,"0")+":"+String(n%60).padStart(2,"0");}
+function suggestedStartTime(t,dayIndex){const stops=(t.days[dayIndex]&&t.days[dayIndex].stops)||[];if(!stops.length)return "09:00";let last=0;stops.forEach(s=>{if(/^\d{2}:\d{2}$/.test(s.time||""))last=Math.max(last,toMinutes(s.time)+(Number(s.duration)||60));});return fromMinutes(last?last+15:540);}
+function populatePickerAreas(){
+ const select=$("pickerArea");
+ const groups=[...new Set((catalog.places||[]).map(p=>p.group).filter(Boolean))];
+ select.innerHTML='<option value="all">All listed destinations</option><option value="Coorg">Coorg · Karnataka only</option><option value="kerala-border">Kerala border escapes only</option>'+groups.map(g=>'<option value="group:'+escapeHtml(g)+'">'+escapeHtml(g)+'</option>').join("");
+}
+function pickerFilteredPlaces(){
+ const q=$("pickerSearch").value.trim().toLowerCase(),area=$("pickerArea").value||"all";
+ return (catalog.places||[]).filter(p=>{
+  const state=p.state||"Karnataka",group=p.group||"";
+  if(area==="Coorg"&&state!=="Karnataka")return false;
+  if(area==="kerala-border"&&p.region!=="kerala-border")return false;
+  if(area.startsWith("group:")&&group!==area.slice(6))return false;
+  return !q||[p.name,p.city,p.group,p.tag,p.overview,p.why,state].join(" ").toLowerCase().includes(q);
+ });
+}
+function updatePickerSelectionUI(){
+ $("pickerSelectionCount").textContent=pickedPlaceIds.size+" selected";
+ $("addSelectedPlaces").disabled=pickedPlaceIds.size===0;
+ $("addSelectedPlaces").textContent=pickedPlaceIds.size?"＋ Add "+pickedPlaceIds.size+" selected place"+(pickedPlaceIds.size===1?"":"s"):"＋ Add selected places";
+}
+function renderPickerPlaces(){
+ const groups={};
+ pickerFilteredPlaces().forEach(p=>(groups[p.group||"Other places"]??=[]).push(p));
+ const html=Object.keys(groups).sort((a,b)=>a.localeCompare(b)).map(group=>'<section class="picker-area-group"><h3>'+escapeHtml(group)+' <span>'+groups[group].length+'</span></h3>'+groups[group].map(p=>{
+  const selected=pickedPlaceIds.has(p.id),state=p.state||"Karnataka",tag=(p.tag||"").toUpperCase(),offbeat=tag.includes("OFFBEAT");
+  return '<article class="picker-place '+(selected?'selected':'')+'"><label class="picker-choice-label"><input class="picker-choice" type="checkbox" value="'+escapeHtml(p.id)+'" '+(selected?'checked':'')+'><span class="picker-checkmark" aria-hidden="true"></span></label><div class="picker-place-copy"><div class="picker-place-heading"><b>'+escapeHtml(p.name)+'</b>'+(offbeat?'<span class="place-badge offbeat">OFFBEAT</span>':'')+(p.region==="kerala-border"?'<span class="place-badge border-badge">KERALA</span>':"")+'</div><p>'+escapeHtml(p.city)+', '+escapeHtml(state)+' · '+escapeHtml(p.tag||"Place")+'</p><small>'+escapeHtml(p.overview||"Explore this destination.")+'</small></div><a class="picker-details-link" href="place.html?id='+encodeURIComponent(p.id)+'" target="_blank" rel="noopener">Details ↗</a></article>';
+ }).join("")+'</section>').join("");
+ $("pickerPlaceList").innerHTML=html||'<div class="picker-no-results"><b>No destinations match your search</b><p>Try a different keyword or choose all areas.</p></div>';
+ updatePickerSelectionUI();
+}
+function openPlacePicker(){
+ const t=active();if(!t){toast("Create an itinerary first");return;}
+ pickedPlaceIds.clear();pickedPlaceOrder=[];
+ $("pickerTripName").textContent="Adding to "+currentTripLabel(t)+". Select the day, search places and check everything you want to include.";
+ $("pickerDay").innerHTML=t.days.map((d,i)=>'<option value="'+i+'">Day '+(i+1)+(t.startDate?' · '+escapeHtml(formatDate(t.startDate,i)):"")+'</option>').join("");
+ $("pickerDay").value=String(Math.min(activeDay,t.days.length-1));
+ $("pickerStartTime").value=suggestedStartTime(t,Number($("pickerDay").value));
+ $("pickerDuration").value="60";$("pickerSearch").value="";
+ populatePickerAreas();
+ const destination=(t.destination||"").toLowerCase();
+ $("pickerArea").value=destination.includes("kerala")?"kerala-border":"Coorg";
+ renderPickerPlaces();
+ $("placePickerDialog").showModal();
+}
+function addPickedPlaces(){
+ const t=active();if(!t){toast("Create an itinerary first");return;}
+ const ids=pickedPlaceOrder.filter(id=>pickedPlaceIds.has(id));
+ if(!ids.length){toast("Select at least one destination");return;}
+ const dayIndex=Math.max(0,Math.min(t.days.length-1,Number($("pickerDay").value)||0));
+ const day=t.days[dayIndex];if(!day.stops)day.stops=[];
+ const seen=new Set(t.days.flatMap(d=>d.stops||[]).flatMap(s=>[s.placeId?"place:"+s.placeId:"","name:"+String(s.name||"").trim().toLowerCase()]).filter(Boolean));
+ const duration=Math.max(15,Math.min(360,Number($("pickerDuration").value)||60));
+ let clock=toMinutes($("pickerStartTime").value||suggestedStartTime(t,dayIndex)),added=0,duplicates=0;
+ ids.forEach(id=>{
+  const p=(catalog.places||[]).find(x=>x.id===id);if(!p)return;
+  const nameKey="name:"+String(p.name||"").trim().toLowerCase(),idKey="place:"+p.id;
+  if(seen.has(idKey)||seen.has(nameKey)){duplicates++;return;}
+  const tag=(p.tag||"").toLowerCase();
+  const type=tag.includes("offbeat")?"offbeat":tag.includes("famous")?"famous":tag.includes("food")?"food":tag.includes("local")?"local":"hidden-gem";
+  const crowdText=(p.crowd||"").toLowerCase();
+  const crowd=crowdText.includes("quiet")||crowdText.includes("less crowded")?"low":crowdText.includes("popular")||crowdText.includes("crowded")?"high":crowdText.includes("unknown")?"unknown":"medium";
+  const state=p.state||"Karnataka";
+  const notes=(p.overview||"")+(p.bestTime?"\nBest time: "+p.bestTime:"");
+  const stop={id:uid(),placeId:p.id,name:p.name,location:p.mapQuery||p.name,time:fromMinutes(clock),duration,type,crowd,notes,done:false,order:day.stops.length,placeGroup:p.group||"",placeState:state};
+  day.stops.push(stop);seen.add(idKey);seen.add(nameKey);added++;clock+=duration+15;
+ });
+ if(!added){toast(duplicates?"Those places are already in this itinerary.":"No destinations were added.");return;}
+ day.stops.sort((a,b)=>(a.time||"99:99").localeCompare(b.time||"99:99"));
+ activeDay=dayIndex;
+ $("placePickerDialog").close();pickedPlaceIds.clear();pickedPlaceOrder=[];
+ save();
+ toast("Added "+added+" place"+(added===1?"":"s")+" to Day "+(dayIndex+1)+(duplicates?" · "+duplicates+" duplicate"+(duplicates===1?"":"s")+" skipped":""));
+}
+
+$("pickPlacesBtn").onclick=openPlacePicker;
+$("closePicker").onclick=$("cancelPlacePicker").onclick=()=>$("placePickerDialog").close();
+$("pickerSearch").addEventListener("input",renderPickerPlaces);
+$("pickerArea").addEventListener("change",renderPickerPlaces);
+$("pickerDay").addEventListener("change",()=>{const t=active();if(t)$("pickerStartTime").value=suggestedStartTime(t,Number($("pickerDay").value)||0);});
+$("pickerPlaceList").addEventListener("change",e=>{const input=e.target.closest(".picker-choice");if(!input)return;const id=input.value;if(input.checked){if(!pickedPlaceIds.has(id)){pickedPlaceIds.add(id);pickedPlaceOrder.push(id);}}else{pickedPlaceIds.delete(id);pickedPlaceOrder=pickedPlaceOrder.filter(x=>x!==id);}const row=input.closest(".picker-place");if(row)row.classList.toggle("selected",input.checked);updatePickerSelectionUI();});
+$("addSelectedPlaces").onclick=addPickedPlaces;
 $("newTrip").onclick=$("newTrip2").onclick=$("emptyCreate").onclick=openCreate;$("cancelCreate").onclick=()=>$("tripDialog").close();$("createTripSubmit").onclick=e=>{e.preventDefault();if($("newName").value.trim()&&$("newDestination").value.trim())createTrip();};$("tripForm").addEventListener("submit",e=>{e.preventDefault();createTrip();});$("stopForm").addEventListener("submit",e=>{e.preventDefault();saveStop();});
 ["tripName","destination","origin","startDate"].forEach(id=>$(id).addEventListener("change",syncFields));$("dayCount").onchange=syncFields;$("dayMap").onclick=mapDay;$("shareBtn").onclick=share;$("exportBtn").onclick=exportTrip;$("addStop").onclick=()=>editStop();$("addDayStop").onclick=()=>addSimple("famous");$("addMeal").onclick=()=>addSimple("food");$("deleteStop").onclick=removeStop;
 $("allTrips").onclick=()=>{const t=active();if(t){$("pageTitle").textContent=t.name||"My itineraries";$("workspace").classList.remove("hidden");}};
