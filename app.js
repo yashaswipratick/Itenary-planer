@@ -15,8 +15,8 @@ function catalogPlaceForStop(stop){
 }
 function stopIdentityKeys(value){
  const item=value||{};
- const place=(item.id&&item.name)?item:(item.placeId?placeById(item.placeId):catalogPlaceForStop(item));
- const id=(place&&place.id)||item.placeId||"";
+ const place=item.placeId?(placeById(item.placeId)||catalogPlaceForStop(item)):(item.id&&item.city?item:catalogPlaceForStop(item));
+ const id=(place&&place.id)||item.placeId||((item.id&&item.city)?item.id:"");
  const name=(place&&place.name)||item.name||"";
  const clean=String(name).toLowerCase().replace(/[^a-z0-9]+/g," ").trim();
  return [...(id?["place:"+id]:[]),...(clean?["name:"+clean]:[])];
