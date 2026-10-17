@@ -48,13 +48,13 @@ window.ROAMPLANDATA = {
       wikiTitle:"Nisargadhama", nearby:["golden-temple","dubare-elephant-camp","harangi-dam","chiklihole-reservoir"]
     },
     {
-      id:"harangi-dam", name:"Harangi Dam", city:"Kushalnagar", group:"Kushalnagar & Bylakuppe",
-      tag:"Scenic · Reservoir", crowd:"Crowd varies by season", duration:"45–75 min", mapQuery:"Harangi Dam Hudgur Kodagu",
-      overview:"Harangi Dam is a masonry dam across the Harangi River, a tributary of the Kaveri, near Hudgur in Kodagu. The reservoir and backwaters sit amid the green landscape east of Madikeri and are commonly visited as a short nature stop near Kushalnagar.",
+      id:"harangi-dam", name:"Harangi Reservoir, Kodagu", city:"Kushalnagar", group:"Kushalnagar & Bylakuppe",
+      tag:"Scenic · Reservoir", crowd:"Crowd varies by season", duration:"45–75 min", mapQuery:"Harangi Reservoir, Kodagu", mapUrl:"https://maps.app.goo.gl/s8oovQGBpjW2TNbL7",
+      overview:"Harangi Reservoir is formed by the Harangi Dam across the Harangi River, a tributary of the Kaveri, near Hudgur in Kodagu. The reservoir and backwaters sit amid the green landscape east of Madikeri and are commonly visited as a short nature stop near Kushalnagar.",
       why:"Visit for the reservoir scenery and to understand the water landscape around the Kaveri basin. It pairs naturally with the nearby Harangi Elephant Camp & Tree Park.",
       bestTime:"Daylight hours. The surrounding views and safe access can change with reservoir operations, rain and water levels.",
       notes:"Public access may be limited to designated visitor areas. Do not enter dam structures or restricted areas, and follow all safety notices. The Kodagu district page lists it close to Kushalnagar and roughly 33 km from Madikeri; route distance depends on your start point.",
-      wikiTitle:"Harangi Dam", officialUrl:"https://kodagu.nic.in/en/tourist-place/harangi-dam/", nearby:["harangi-elephant-camp-tree-park","kaveri-nisargadhama","dubare-elephant-camp","chiklihole-reservoir"]
+      wikiTitle:"Harangi Reservoir", officialUrl:"https://kodagu.nic.in/en/tourist-place/harangi-dam/", nearby:["harangi-elephant-camp-tree-park","kaveri-nisargadhama","dubare-elephant-camp","chiklihole-reservoir"]
     },
     {
       id:"harangi-elephant-camp-tree-park", name:"Harangi Elephant Camp & Tree Park", city:"Kushalnagar", group:"Kushalnagar & Bylakuppe",
@@ -63,7 +63,7 @@ window.ROAMPLANDATA = {
       why:"A useful alternative to the better-known Dubare stop if you are exploring the Harangi reservoir area. The setting combines an elephant-camp visit with views of the backwaters and surrounding greenery.",
       bestTime:"Check current visitor hours and activity availability before travelling; morning or late afternoon can work well for an unhurried visit.",
       notes:"The official tourism page mentions pedal boats in the backwaters, but availability and visitor rules can change. Confirm activities, any elephant-viewing restrictions, and access locally; do not assume close contact with elephants is allowed.",
-      wikiTitle:"Harangi Dam", wikiLabel:"Harangi Dam and backwaters (regional context)", officialUrl:"https://kodagu.nic.in/en/tourist-place/harangi-tree-park-and-elephant-camp/", nearby:["harangi-dam","dubare-elephant-camp","kaveri-nisargadhama","chiklihole-reservoir"]
+      wikiTitle:"Harangi Reservoir", wikiLabel:"Harangi Reservoir and backwaters (regional context)", officialUrl:"https://kodagu.nic.in/en/tourist-place/harangi-tree-park-and-elephant-camp/", nearby:["harangi-dam","dubare-elephant-camp","kaveri-nisargadhama","chiklihole-reservoir"]
     },
     {
       id:"chiklihole-reservoir", name:"Chiklihole Reservoir", city:"Kushalnagar", group:"Kushalnagar & Bylakuppe",
