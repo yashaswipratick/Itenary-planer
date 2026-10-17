@@ -3,19 +3,7 @@ const $=id=>document.getElementById(id),KEY="roamplan.itineraries.v1",catalog=wi
 const types={famous:"Famous place","hidden-gem":"Hidden gem",offbeat:"Offbeat",local:"Local favourite",food:"Food / meal",break:"Rest / buffer"};
 const crowdLabels={low:"Less crowded",medium:"Moderate crowd",high:"Crowded",unknown:"Crowd unknown"};
 const uid=()=>Math.random().toString(36).slice(2,10)+Date.now().toString(36);
-function starter(){return[
-["07:30","Breakfast / coffee","food",45,"medium","Ease into the day before driving."],
-["08:30","Travel to first stop","break",30,"low","Add a realistic travel buffer."],
-["09:00","Main attraction","famous",90,"high","Confirm opening hours and tickets."],
-["10:45","Hidden gem nearby","hidden-gem",45,"low","Leave space for a spontaneous discovery."],
-["12:00","Lunch break","food",60,"medium","Try a local speciality."],
-["13:15","Explore at an easy pace","local",75,"medium","Keep this slot flexible."],
-["14:45","Rest / travel buffer","break",30,"low","Hydrate and allow time for traffic."],
-["15:30","Offbeat stop","offbeat",60,"low","Choose a quieter alternative if the area is busy."],
-["17:00","Sunset / scenic stop","famous",45,"medium","Check sunset time for your travel date."],
-["19:00","Dinner","food",60,"medium","Pick somewhere convenient for the return."]
-].map((x,i)=>({id:uid(),time:x[0],name:x[1],location:"",duration:x[3],type:x[2],crowd:x[4],notes:x[5],done:false,order:i}));}
-function makeTrip(data={}){let days=Number(data.days)||1;return{id:uid(),name:data.name||"My new adventure",destination:data.destination||"",origin:data.origin||"",startDate:data.startDate||"",days:Array.from({length:days},(_,i)=>({stops:data.template===false?[]:starter().map(s=>({...s,id:uid()}))})),created:Date.now()};}
+function makeTrip(data={}){let days=Number(data.days)||1;return{id:uid(),name:data.name||"My new adventure",destination:data.destination||"",origin:data.origin||"",startDate:data.startDate||"",days:Array.from({length:days},()=>({stops:[]})),created:Date.now()};}
 function save(){try{localStorage.setItem(KEY,JSON.stringify(trips));$("saveStatus").textContent="● All changes saved";}catch(e){$("saveStatus").textContent="Could not save locally";}render();}
 function catalogPlaceForStop(stop){
  if(stop.placeId)return placeById(stop.placeId);
@@ -59,7 +47,7 @@ function normalizeSavedPlaceStops(){
  if(changed){try{localStorage.setItem(KEY,JSON.stringify(trips));}catch(e){}}
 }
 function load(){try{trips=JSON.parse(localStorage.getItem(KEY)||"[]");if(!Array.isArray(trips))trips=[];}catch{trips=[];}if(!trips.length){const t=makeTrip({name:"A slow weekend in Coorg",destination:"Coorg, Karnataka",origin:"Bengaluru",days:1});trips.push(t);activeId=t.id;}else activeId=trips[0].id;
-const hash=location.hash.slice(1);if(hash.startsWith("trip=")){try{const shared=JSON.parse(decodeURIComponent(escape(atob(hash.slice(5)))));if(shared&&shared.name&&Array.isArray(shared.days)){shared.id=uid();trips.unshift(shared);activeId=shared.id;history.replaceState(null,"",location.pathname+location.search);save();toast("Shared itinerary imported as a new copy");}}catch{toast("This share link could not be imported");}}normalizeSavedPlaceStops();render();}
+const hash=location.hash.slice(1);if(hash.startsWith("trip=")){try{const shared=JSON.parse(decodeURIComponent(escape(atob(hash.slice(5)))));if(shared&&shared.name&&Array.isArray(shared.days)){shared.id=uid();trips.unshift(shared);activeId=shared.id;history.replaceState(null,"",location.pathname+location.search);save();toast("Shared itinerary imported as a new copy");}}catch{toast("This share link could not be imported");}}normalizeSavedPlaceStops();removeStarterTemplatePlaceholders();render();}
 function active(){return trips.find(t=>t.id===activeId)||trips[0];}
 function escapeHtml(s=""){return String(s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));}
 function formatDate(date,offset){if(!date)return"";const d=new Date(date+"T12:00:00");d.setDate(d.getDate()+offset);return d.toLocaleDateString(undefined,{weekday:"short",month:"short",day:"numeric"});}
@@ -79,7 +67,7 @@ function renderStop(s,i){
 }
 function syncFields(){const t=active();if(!t)return;t.name=$("tripName").value;t.destination=$("destination").value;t.origin=$("origin").value;t.startDate=$("startDate").value;const n=Number($("dayCount").value);while(t.days.length<n)t.days.push({stops:[]});if(t.days.length>n)t.days=t.days.slice(0,n);activeDay=Math.min(activeDay,t.days.length-1);save();}
 function openCreate(){ $("tripForm").reset();$("newDate").value="";$("tripDialog").showModal();}
-function createTrip(){const t=makeTrip({name:$("newName").value.trim(),destination:$("newDestination").value.trim(),origin:$("newOrigin").value.trim(),startDate:$("newDate").value,days:$("newDays").value,template:$("starterTemplate").checked});trips.unshift(t);activeId=t.id;activeDay=0;$("tripDialog").close();save();toast("Your itinerary is ready");}
+function createTrip(){const t=makeTrip({name:$("newName").value.trim(),destination:$("newDestination").value.trim(),origin:$("newOrigin").value.trim(),startDate:$("newDate").value,days:$("newDays").value});trips.unshift(t);activeId=t.id;activeDay=0;$("tripDialog").close();save();toast("Your itinerary is ready");}
 function editStop(id){const t=active(),s=id?t.days[activeDay].stops.find(x=>x.id===id):null;$("stopForm").reset();setVal("stopId",s?s.id:"");setVal("stopName",s?s.name:"");setVal("stopLocation",s?s.location:"");setVal("stopTime",s?s.time:"09:00");setVal("stopDuration",s?s.duration:60);setVal("stopType",s?s.type:"famous");setVal("stopCrowd",s?s.crowd:"medium");setVal("stopNotes",s?s.notes:"");$("stopModalTitle").textContent=s?"Edit stop":"Add a stop";$("deleteStop").classList.toggle("hidden",!s);$("stopDialog").showModal();}
 function saveStop(){const t=active(),list=t.days[activeDay].stops,id=$("stopId").value;let s=list.find(x=>x.id===id);if(!s){s={id:uid(),done:false};list.push(s);}Object.assign(s,{name:$("stopName").value.trim(),location:$("stopLocation").value.trim(),time:$("stopTime").value,duration:Number($("stopDuration").value)||60,type:$("stopType").value,crowd:$("stopCrowd").value,notes:$("stopNotes").value.trim()});list.sort((a,b)=>(a.time||"99:99").localeCompare(b.time||"99:99"));$("stopDialog").close();save();toast("Stop saved");}
 function removeStop(){const t=active(),id=$("stopId").value;t.days[activeDay].stops=t.days[activeDay].stops.filter(s=>s.id!==id);$("stopDialog").close();save();toast("Stop deleted");}
@@ -117,6 +105,34 @@ function exportTrip(){const t=active();const blob=new Blob([JSON.stringify(t,nul
 function addSimple(type){editStop();setVal("stopType",type);if(type==="food")setVal("stopName","Meal / break");else setVal("stopName","New destination");}
 const starterSlotNames=new Set(["Breakfast / coffee","Travel to first stop","Main attraction","Hidden gem nearby","Lunch break","Explore at an easy pace","Rest / travel buffer","Offbeat stop","Sunset / scenic stop","Dinner"]);
 const replaceableSightseeingSlots=new Set(["Main attraction","Hidden gem nearby","Explore at an easy pace","Offbeat stop","Sunset / scenic stop"]);
+function removeStarterTemplatePlaceholders(){
+ const defaultNotes=new Set([
+  "Ease into the day before driving.",
+  "Add a realistic travel buffer.",
+  "Confirm opening hours and tickets.",
+  "Leave space for a spontaneous discovery.",
+  "Try a local speciality.",
+  "Keep this slot flexible.",
+  "Hydrate and allow time for traffic.",
+  "Choose a quieter alternative if the area is busy.",
+  "Check sunset time for your travel date.",
+  "Pick somewhere convenient for the return."
+ ]);
+ let changed=false;
+ for(const trip of trips){
+  for(const day of (trip.days||[])){
+   const before=(day.stops||[]).length;
+   day.stops=(day.stops||[]).filter(stop=>{
+    const name=String(stop.name||"").trim();
+    const hasExplicitLocation=Boolean(String(stop.location||"").trim());
+    const isDefaultPlaceholder=!stop.placeId&&!hasExplicitLocation&&starterSlotNames.has(name)&&defaultNotes.has(String(stop.notes||"").trim());
+    return !isDefaultPlaceholder;
+   });
+   if(day.stops.length!==before)changed=true;
+  }
+ }
+ if(changed){try{localStorage.setItem(KEY,JSON.stringify(trips));}catch(e){}}
+}
 const ROUTE_CIRCUITS=[
  {id:"virajpet-east-corridor",category:"East · Dubare & Harangi",title:"Dubare & Harangi Reservoir circuit",direction:"Dubare → Harangi Reservoir",defaultDuration:90,description:"A curated grouping of Dubare Elephant Camp, Harangi Elephant Camp & Tree Park and Harangi Reservoir. Choose these places only if they fit your plans; RoamPlan does not calculate the best road route or travel time.",placeIds:["dubare-elephant-camp","harangi-elephant-camp-tree-park","harangi-dam"]},
  {id:"kushalnagar-river-adventure",category:"East · Kushalnagar activities",title:"Kushalnagar River & Adventure Stops",direction:"Greenway / 7th Hosakote → Nisargadhama → Basavanahalli / Baichanahalli",defaultDuration:75,description:"A regional coffee, river and family-activity circuit around the Kushalnagar side. This is a curated grouping, not live road-time optimization; verify order and current attraction access in Maps.",placeIds:["greenway-coffee-island","kaveri-nisargadhama","coorg-hanging-bridge","coorg-adventure-park"]},
