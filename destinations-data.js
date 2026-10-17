@@ -231,7 +231,7 @@ window.ROAMPLANDATA = {
     },
     {
       id:"chelavara-falls", name:"Chelavara Waterfalls", city:"Kakkabe / Virajpet", group:"Kakkabe & Virajpet",
-      tag:"OFFBEAT · Waterfall", crowd:"Crowd varies", duration:"45–75 min plus drive", mapQuery:"Chelavara Waterfalls, 6M4F+F9X, Cheyyandane village, Chelavara, Karnataka 571212",
+      tag:"OFFBEAT · Waterfall", crowd:"Crowd varies", duration:"45–75 min plus drive", mapQuery:"Chelavara Waterfalls, 6M4F+F9X, Cheyyandane village, Chelavara, Karnataka 571212", aliases:["Chelavara Falls"],
       overview:"A waterfall near Cheyyandane village in Kodagu, surrounded by dense greenery. This entry uses the plus code and address supplied by the user; access can vary with rainfall and local conditions.",
       why:"A worthwhile alternative if you prefer a less urbanised, forest-framed waterfall visit.",
       bestTime:"Only when access is open and weather is safe; avoid periods of heavy rain.",
@@ -312,7 +312,7 @@ window.ROAMPLANDATA = {
     },
     {
       id:"brahmagiri-wildlife-sanctuary", name:"Brahmagiri Wildlife Sanctuary", city:"Kutta", group:"Kutta & Nagarahole",
-      tag:"Wildlife · Forest", crowd:"Access and permits vary", duration:"Half day to full day", mapQuery:"Brahmagiri Wildlife Sanctuary Karnataka, 5JFV+3J4, Kappimala - Paithalmala Road, Vellad, 670571",
+      tag:"Wildlife · Forest", crowd:"Access and permits vary", duration:"Half day to full day", mapQuery:"Brahmagiri Wildlife Sanctuary, Karnataka",
       overview:"A protected Western Ghats forest landscape associated with the Brahmagiri range near the Kodagu–Kerala border. This listing preserves the location details supplied for the Kappimala–Paithalmala Road pin.",
       why:"A nature-focused option for travellers interested in Western Ghats forest, wildlife and biodiversity.",
       bestTime:"Confirm current forest access, permissions and weather before planning; do not assume casual entry into the sanctuary is allowed.",
