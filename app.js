@@ -135,7 +135,7 @@ function dailyBaseForTrip(t){
  const saved=String(t&&t.baseLocation||"").trim();
  if(saved)return saved;
  const legacy=String(t&&t.origin||"").trim();
- return /\\b(resort|hotel|homestay|lodge|villa|estate|virajpet|bittangala|ambatty|madikeri|kushalnagar|bylakuppe|somwarpet|kutta)\\b/i.test(legacy)?legacy:"";
+ return /\b(resort|hotel|homestay|lodge|villa|estate|virajpet|bittangala|ambatty|madikeri|kushalnagar|bylakuppe|somwarpet|kutta)\b/i.test(legacy)?legacy:"";
 }
 function baseRegionForTrip(t){
  const base=dailyBaseForTrip(t).toLowerCase();
