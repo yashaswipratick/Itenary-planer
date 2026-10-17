@@ -101,7 +101,7 @@ const ROUTE_CIRCUITS=[
  {id:"kushalnagar-river-adventure",category:"East · Kushalnagar activities",title:"Kushalnagar River & Adventure Stops",direction:"Greenway / 7th Hosakote → Nisargadhama → Basavanahalli / Baichanahalli",defaultDuration:75,description:"A regional coffee, river and family-activity circuit around the Kushalnagar side. This is a curated grouping, not live road-time optimization; verify order and current attraction access in Maps.",placeIds:["greenway-coffee-island","kaveri-nisargadhama","coorg-hanging-bridge","coorg-adventure-park"]},
  {id:"kaapi-nele-experience",category:"South-west · Ammathi / Bilugunda",title:"Kaapi Nele Plantation & Adventure Walk",direction:"Ammathi / Bilugunda",defaultDuration:120,description:"A booking-led guided plantation walk and nature-adventure experience. Confirm which activity/package you are booking and its meeting point before travelling.",placeIds:["kaapi-nele-adventure-trek"]},
  {id:"bylakuppe-nisargadhama",category:"East · Bylakuppe / Kushalnagar",title:"Golden Temple & Nisargadhama",direction:"Bylakuppe → Nisargadhama",defaultDuration:60,description:"A compact culture-and-river stop on the eastern approach. Harangi and Dubare are separate circuits to avoid adding opposite-side detours.",placeIds:["golden-temple","kaveri-nisargadhama"]},
- {id:"harangi-backwaters",category:"East · Harangi",title:"Harangi Reservoir & Elephant Camp",direction:"Harangi reservoir / backwaters",defaultDuration:60,description:"Keep the reservoir-side visit and adjacent tree park / elephant camp together. Do not add Golden Temple or Dubare to this day's route.",placeIds:["harangi-dam","harangi-elephant-camp-tree-park"]},
+ {id:"harangi-backwaters",category:"East · Harangi",title:"Harangi Reservoir & Elephant Camp",direction:"Harangi reservoir / backwaters",defaultDuration:60,description:"A small regional grouping of the reservoir and adjacent tree park / elephant camp. Choose either or both, and confirm the actual road route in Maps.",placeIds:["harangi-dam","harangi-elephant-camp-tree-park"]},
  {id:"dubare-camp",category:"East · Dubare",title:"Dubare Elephant Camp",direction:"Dubare / Kaveri river",defaultDuration:150,description:"Treat Dubare as its own scheduled visit because the camp activity and river access can take several hours.",placeIds:["dubare-elephant-camp"]},
  {id:"chiklihole-reservoir",category:"East · Reservoirs",title:"Chiklihole Reservoir",direction:"Chiklihole countryside",defaultDuration:60,description:"A standalone offbeat reservoir stop. Keep it separate unless you have checked the exact road route from your stay.",placeIds:["chiklihole-reservoir"]},
  {id:"madikeri-town",category:"Central · Madikeri",title:"Madikeri town heritage loop",direction:"Madikeri town centre",defaultDuration:45,description:"Town-side heritage sights grouped together so you can park once and minimise driving between stops.",placeIds:["madikeri-fort","omkareshwara-temple","rajas-tomb","rajas-seat"]},
@@ -194,7 +194,7 @@ function updatePickerSelectionUI(){
  const selected=pickerDay();
  if(!route)$("pickerHint").textContent="Choose a circuit or area, select the destinations you want, and add them to the day. You can repeat this with another group.";
  else if(selected&&selected.day.stops.some(s=>s.placeId&&!route.placeIds.includes(s.placeId)))$("pickerHint").textContent="This day already includes places from another group. You can still add these selections; check the full route and travel time in Maps.";
- else $("pickerHint").textContent="Select the places you want from this group. You can add more from another group later. RoamPlan does not optimize driving routes.";
+ else $("pickerHint").textContent="Check destinations in your intended visit order. You can add more from another group later; RoamPlan does not optimize driving routes.";
 }
 function renderPickerPlaces(){
  const route=currentPickerRoute(),places=pickerFilteredPlaces();
@@ -216,7 +216,7 @@ function handlePickerCircuitChange(){
 function openPlacePicker(){
  const t=active();if(!t){toast("Create an itinerary first");return;}
  pickedPlaceIds.clear();pickedPlaceOrder=[];
- $("pickerTripName").textContent="Choose an area or circuit, select the destinations you want, and add them to your day. Choose stop order yourself; this planner does not optimize driving routes.";
+ $("pickerTripName").textContent="Choose an area or circuit, then check destinations in the order you want to visit them. Add them to your day and use Google Maps to review driving directions.";
  $("pickerDay").innerHTML=t.days.map((d,i)=>'<option value="'+i+'">Day '+(i+1)+(t.startDate?' · '+escapeHtml(formatDate(t.startDate,i)):"")+'</option>').join("");
  $("pickerDay").value=String(Math.min(activeDay,t.days.length-1));
  $("pickerSearch").value="";
@@ -230,8 +230,8 @@ function addPickedPlaces(){
  const selected=pickerDay(),route=currentPickerRoute();
  if(!selected||!route){toast("Choose a route circuit first.");return;}
  const dayIndex=selected.index,day=selected.day;if(!day.stops)day.stops=[];
- // Add places from the selected group in that group's displayed sequence. The user can combine groups if desired.
- const ids=route.placeIds.filter(id=>pickedPlaceIds.has(id));
+ // Add places in the exact order the user checked them. The user can combine groups if desired.
+ const ids=pickedPlaceOrder.filter(id=>route.placeIds.includes(id));
  if(!ids.length){toast("Select at least one destination from this route.");return;}
  const seen=new Set(t.days.flatMap(d=>d.stops||[]).flatMap(s=>[s.placeId?"place:"+s.placeId:"","name:"+String(s.name||"").trim().toLowerCase()]).filter(Boolean));
  const duration=Math.max(15,Math.min(600,Number($("pickerDuration").value)||route.defaultDuration||60));
