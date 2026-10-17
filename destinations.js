@@ -41,7 +41,7 @@ function render(){
  const city=$("citySelect").value||"Coorg";
  const query=$("placeSearch").value.trim().toLowerCase();
  const all=DB.places;
- const cityPlaces=city==="Coorg"?all:all.filter(p=>p.city===city || (CITY_TO_GROUP[city]||[]).includes(p.group));
+ const cityPlaces=city==="Coorg"?all:all.filter(p=>p.city===city);
  const matches=cityPlaces.filter(p=>!query||[p.name,p.city,p.group,p.tag,p.overview,p.why].join(" ").toLowerCase().includes(query));
  $("destinationTitle").innerHTML=city==="Coorg"?'Coorg <span>(Kodagu)</span>':esc(city);
  $("resultsTitle").textContent=city==="Coorg"?"Explore Coorg by area":"Places in "+city;
