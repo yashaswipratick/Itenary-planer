@@ -42,3 +42,10 @@ The **Explore places** link opens a separate destination library at `destination
 ### Coorg and Kerala-border additions
 
 The destination catalogue also includes the Kabbe Betta View and Thadiyandamol hiking area in Kodagu, while Kalanki, Alakapuri Waterfalls, Areekamala Viewpoint and Ezharakund Waterfalls are kept in a separate **Beyond Coorg: Kerala border escapes** collection because they are in Kannur district, Kerala. Nalknad Palace is a single existing entry and is cross-linked with the nearby Kodagu hill sites. State and area filters distinguish Karnataka from Kerala; the border collection is not represented as part of Coorg itself. The suggested links are curated regional pairings, not live routing-distance calculations.
+
+
+## Build an itinerary from the destination library
+
+On the itinerary planner page, use **Choose destinations** in the Day by day section to browse the curated destination catalog without leaving the planner. Search by place name or area, filter to all places, Coorg/Karnataka, Kerala border escapes, or a specific regional group, select one or more places, choose a trip day, set a starting time and duration, and add them to the active itinerary. The planner avoids duplicate places and tries to schedule around existing stops, meal breaks and buffers. Untouched generic sightseeing placeholders are replaced when real curated destinations are added to that day.
+
+Each selected stop retains its place ID, map search, area/state, and a brief place overview. The **Maps** and **Place guide** links open the location or detail page. Mark a stop visited using its check control; it remains in the itinerary with an **Already visited** status, and the day/trip progress counters update. Trip and visited state remain in this browser's localStorage.
