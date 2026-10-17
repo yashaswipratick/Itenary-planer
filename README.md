@@ -49,3 +49,8 @@ The destination catalogue also includes the Kabbe Betta View and Thadiyandamol h
 On the itinerary planner page, use **Choose destinations** in the Day by day section to browse the curated destination catalog without leaving the planner. Search by place name or area, filter to all places, Coorg/Karnataka, Kerala border escapes, or a specific regional group, select one or more places, choose a trip day, set a starting time and duration, and add them to the active itinerary. The planner avoids duplicate places and tries to schedule around existing stops, meal breaks and buffers. Untouched generic sightseeing placeholders are replaced when real curated destinations are added to that day.
 
 Each selected stop retains its place ID, map search, area/state, and a brief place overview. The **Maps** and **Place guide** links open the location or detail page. Mark a stop visited using its check control; it remains in the itinerary with an **Already visited** status, and the day/trip progress counters update. Trip and visited state remain in this browser's localStorage.
+
+
+### Route-aware day planning
+
+The destination picker uses curated route circuits instead of exposing the entire Coorg/nearby-region catalogue for a single day. Each circuit lists its places in recommended visit order; the planner orders selected stops along that sequence, stores the circuit on the day, and locks the day to that circuit so separate directions aren't silently mixed. To plan a different side of Coorg, choose a different day. The route groups are manually curated from regional travel guidance, not live Google Maps traffic or an automatic route optimisation API. Check current directions from your own stay before driving.
