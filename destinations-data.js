@@ -212,6 +212,15 @@ window.ROAMPLANDATA = {
       wikiTitle:"", nearby:["talakaveri","bhagamandala"]
     },
     {
+      id:"bird-man-of-coorg", name:"Bird Man of Coorg", city:"Somwarpet", group:"Somwarpet & Pushpagiri",
+      tag:"OFFBEAT · Birding · Local interest", crowd:"Confirm locally", duration:"Confirm before visiting", mapQuery:"Bird Man of Coorg, Kavery Colony, Nanjarayapatna, Somwarpet Taluk, Karnataka 571234",
+      overview:"A local bird-focused place in Nanjarayapatna village, Somwarpet taluk, known as the Bird Man of Coorg. Public visitor information is limited, so confirm the exact location and access before making a dedicated trip.",
+      why:"A distinctive local-interest stop for travellers curious about birds and lesser-known places around Somwarpet.",
+      bestTime:"Confirm visiting hours and the best time to visit with a local contact before setting out.",
+      notes:"Address supplied: Kavery Colony, Nanjarayapatna, Somwarpet Taluk, Karnataka 571234. Verify the exact map pin, public access and whether a prior arrangement is needed. Be respectful of residents and do not enter private property without permission.",
+      wikiTitle:"", aliases:["Birdman of Coorg","Bird Man of Kodagu","Birdman of Kodagu"], nearby:["honnamana-kere","mallalli-falls"]
+    },
+    {
       id:"honnamana-kere", name:"Honnamana Kere", city:"Somwarpet", group:"Somwarpet & Pushpagiri",
       tag:"OFFBEAT · Lake", crowd:"Usually quieter", duration:"45–75 min", mapQuery:"Honnamana Kere Somwarpet",
       overview:"A lake near Somwarpet with a temple and countryside setting. The atmosphere is calmer than the busiest viewpoints, with the lake itself being the main reason to stop.",
