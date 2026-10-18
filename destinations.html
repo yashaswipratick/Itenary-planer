@@ -1,7 +1,7 @@
 <!doctype html>
 <html lang="en">
 <head>
-<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<meta charset="utf-8"><script>try{document.documentElement.dataset.theme=localStorage.getItem("roamplan.theme")==="dark"?"dark":"light";}catch(e){document.documentElement.dataset.theme="light";}</script><meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="theme-color" content="#f4f5ef">
 <meta name="description" content="Explore Coorg (Kodagu), Karnataka. Browse places by country, state and city, discover nearby attractions, and read place guides with Wikipedia links.">
 <title>Explore Coorg — RoamPlan</title>
@@ -10,7 +10,7 @@
 <body class="explorer-page">
 <header class="explore-top">
   <a class="brand explore-brand" href="index.html"><span class="brand-icon">⌁</span><span><b>RoamPlan</b><small>TRAVEL, YOUR WAY</small></span></a>
-  <nav aria-label="Main navigation"><a href="index.html">My itineraries</a><a class="current" href="destinations.html">Explore destinations</a></nav>
+  <nav aria-label="Main navigation"><a href="index.html">My itineraries</a><a class="current" href="destinations.html">Explore destinations</a><button id="themeToggle" type="button" class="btn theme-toggle" aria-label="Switch to dark theme" aria-pressed="false">☾ Dark mode</button></nav>
 </header>
 <main class="explore-main">
   <section class="destination-hero">
@@ -57,5 +57,5 @@
   <section class="source-note"><div class="source-mark">i</div><div><b>About the place information</b><p>Each place page includes a locally written travel overview, practical visit notes, Google Maps, and a live Wikipedia introduction when a matching article exists. Smaller local stops may not have their own Wikipedia article; those pages say so and retain the guide overview. Crowd labels are planning estimates, not live crowd data. Always verify access, weather, opening times and permits before travelling.</p></div></section>
   <footer class="explore-footer"><a href="index.html">← Back to itinerary planner</a><span>RoamPlan · Free travel planning</span></footer>
 </main>
-<script src="destinations-data.js"></script><script src="destinations.js"></script>
+<script src="theme.js"></script><script src="destinations-data.js"></script><script src="destinations.js"></script>
 </body></html>
