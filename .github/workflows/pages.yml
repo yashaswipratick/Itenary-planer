@@ -29,6 +29,7 @@ jobs:
           node --check destinations-data.js
           node --check destinations.js
           node --check place.js
+          node --check theme.js
       - name: Configure Pages
         uses: actions/configure-pages@v5
       - name: Upload site artifact
