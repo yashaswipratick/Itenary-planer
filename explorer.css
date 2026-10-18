@@ -267,3 +267,80 @@
   .border-area-chip{align-self:flex-start}
   .border-escapes-section #borderEscapeCards.place-grid{grid-template-columns:1fr}
 }
+
+
+/* Dark theme for destination explorer and place guides */
+html[data-theme="dark"] .explorer-page{background:#101712;color:#e5eee7;--exp-ink:#e5eee7;--exp-muted:#a4b2a7;--exp-line:#34463a;--exp-green:#8cc5a1}
+html[data-theme="dark"] .explore-top{background:#18221b;border-color:#2d3d32}
+html[data-theme="dark"] .explore-top nav a{color:#b3c0b5}
+html[data-theme="dark"] .explore-top nav a:hover,
+html[data-theme="dark"] .explore-top nav a.current{background:#294331;color:#d5edda}
+html[data-theme="dark"] .explore-top .btn{background:#202e24;color:#dce8de;border-color:#3b5041}
+html[data-theme="dark"] .destination-hero,
+html[data-theme="dark"] .place-hero{background:radial-gradient(ellipse at 82% 12%,#425941 0,transparent 32%),radial-gradient(ellipse at 65% 120%,#345a42 0,transparent 36%),linear-gradient(120deg,#12271b 0%,#1d3d2a 50%,#3e6040 100%);color:#f1f8f1}
+html[data-theme="dark"] .filter-panel,
+html[data-theme="dark"] .detail-panel{background:#1a261f;border-color:#34463a}
+html[data-theme="dark"] .filter-grid label{color:#a4b2a7}
+html[data-theme="dark"] .filter-grid select,
+html[data-theme="dark"] .search-box input{background:#111b15;border-color:#3a4c3e;color:#e4eee6}
+html[data-theme="dark"] .search-box span{color:#a4b2a7}
+html[data-theme="dark"] .region-intro{border-color:#34463a}
+html[data-theme="dark"] .region-intro p:not(.eyebrow),
+html[data-theme="dark"] .group-heading p:not(.eyebrow),
+html[data-theme="dark"] .place-summary,
+html[data-theme="dark"] .place-facts,
+html[data-theme="dark"] .detail-copy,
+html[data-theme="dark"] .secondary-copy,
+html[data-theme="dark"] .practical-note p,
+html[data-theme="dark"] .guide-card p{color:#aebbb0}
+html[data-theme="dark"] .text-link,
+html[data-theme="dark"] .breadcrumbs a,
+html[data-theme="dark"] .explore-footer a,
+html[data-theme="dark"] .guide-card a{color:#a5d8b1}
+html[data-theme="dark"] .result-count,
+html[data-theme="dark"] .group-count{background:#202e24;border-color:#3b5041;color:#c4d3c6}
+html[data-theme="dark"] .place-group{background:#141e17;border-color:#34463a}
+html[data-theme="dark"] .group-icon,
+html[data-theme="dark"] .place-glyph{background:#2a3d2c}
+html[data-theme="dark"] .place-card{background:#1b2820;border-color:#34463a}
+html[data-theme="dark"] .place-card:hover{border-color:#58775b}
+html[data-theme="dark"] .place-badge{background:#2a352d;color:#c1cec3}
+html[data-theme="dark"] .place-badge.offbeat{background:#39334f;color:#d0c4fb}
+html[data-theme="dark"] .place-badge.border-badge{background:#263c2c;color:#b8e0c0}
+html[data-theme="dark"] .place-area,
+html[data-theme="dark"] .explore-footer,
+html[data-theme="dark"] .breadcrumbs{color:#96a597}
+html[data-theme="dark"] .place-card h3 a{color:#e4eee6}
+html[data-theme="dark"] .place-card h3 a:hover{color:#a5d8b1}
+html[data-theme="dark"] .place-card-actions{border-color:#34463a}
+html[data-theme="dark"] .mini-link{background:#202e24;border-color:#3b5041;color:#cbd9cd}
+html[data-theme="dark"] .mini-link:hover{background:#2a3d30;border-color:#58775b}
+html[data-theme="dark"] .mini-link.primary-link{background:#294331;border-color:#3c5d41;color:#c6e7cc}
+html[data-theme="dark"] .no-results{background:#1b2820;border-color:#3b5041;color:#c6d5c8}
+html[data-theme="dark"] .source-note{background:#1d2b21;border-color:#34463a}
+html[data-theme="dark"] .source-mark{background:#34543a;color:#d6edd9}
+html[data-theme="dark"] .wiki-panel{background:#17231b;border-left-color:#68976f}
+html[data-theme="dark"] .wiki-mark{background:#202e24;border-color:#3b5041;color:#dce8de}
+html[data-theme="dark"] .wiki-status{background:#2a392d;color:#c0cec2}
+html[data-theme="dark"] .visit-facts>div{background:#18241c;border-color:#34463a}
+html[data-theme="dark"] .visit-facts span{color:#96a597}
+html[data-theme="dark"] .visit-facts strong,
+html[data-theme="dark"] .quick-row b{color:#dce8de}
+html[data-theme="dark"] .practical-note,
+html[data-theme="dark"] .guide-card{background:#202e24}
+html[data-theme="dark"] .quick-row{border-color:#34463a}
+html[data-theme="dark"] .quick-row small{color:#96a597}
+html[data-theme="dark"] .nearby-section{border-color:#34463a}
+html[data-theme="dark"] .border-escapes-section{background:linear-gradient(135deg,#1d2b21 0%,#17231b 58%,#26241a 100%);border-color:#3a4c3e}
+html[data-theme="dark"] .border-escapes-section .nearby-head{border-color:#34463a}
+html[data-theme="dark"] .border-escapes-section .nearby-head .eyebrow{color:#a5d8b1}
+html[data-theme="dark"] .border-escapes-section .nearby-head h2{color:#e0ece2}
+html[data-theme="dark"] .border-escapes-section .nearby-head p.muted{color:#a4b2a7}
+html[data-theme="dark"] .border-area-chip{background:#202e24;color:#c4d9c6;border-color:#3b5041}
+html[data-theme="dark"] .border-area-chip:before{color:#a5d8b1}
+html[data-theme="dark"] .border-escapes-section .place-card{border-color:#34463a}
+html[data-theme="dark"] .border-escapes-section .place-card:hover{border-color:#58775b}
+html[data-theme="dark"] .border-escapes-section .place-badge.border-badge{background:#263c2c;border-color:#3c5c42;color:#b8e0c0}
+html[data-theme="dark"] .border-escapes-section .place-badge.offbeat{background:#39334f;border-color:#50456e;color:#d0c4fb}
+html[data-theme="dark"] .explorer-page .theme-toggle{white-space:nowrap}
+@media(max-width:720px){html[data-theme="dark"] .explore-top{gap:12px;flex-wrap:wrap}html[data-theme="dark"] .explore-top nav{width:100%;justify-content:flex-start;flex-wrap:wrap}}
