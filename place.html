@@ -1,7 +1,7 @@
 <!doctype html>
 <html lang="en">
 <head>
-<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta charset="utf-8"><script>try{document.documentElement.dataset.theme=localStorage.getItem("roamplan.theme")==="dark"?"dark":"light";}catch(e){document.documentElement.dataset.theme="light";}</script><meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="theme-color" content="#f4f5ef"><meta name="description" content="Explore a Coorg destination on RoamPlan with overview, visit tips, Google Maps and Wikipedia context.">
 <title>Place guide — RoamPlan</title>
 <link rel="stylesheet" href="styles.css"><link rel="stylesheet" href="explorer.css">
@@ -9,7 +9,7 @@
 <body class="explorer-page place-page">
 <header class="explore-top">
   <a class="brand explore-brand" href="index.html"><span class="brand-icon">⌁</span><span><b>RoamPlan</b><small>TRAVEL, YOUR WAY</small></span></a>
-  <nav aria-label="Main navigation"><a href="index.html">My itineraries</a><a class="current" href="destinations.html">Explore destinations</a></nav>
+  <nav aria-label="Main navigation"><a href="index.html">My itineraries</a><a class="current" href="destinations.html">Explore destinations</a><button id="themeToggle" type="button" class="btn theme-toggle" aria-label="Switch to dark theme" aria-pressed="false">☾ Dark mode</button></nav>
 </header>
 <main class="explore-main place-main">
   <div class="breadcrumbs"><a href="destinations.html">Explore destinations</a><span>›</span><a href="destinations.html">Coorg, Karnataka</a><span>›</span><span id="crumbPlace">Place guide</span></div>
@@ -32,5 +32,5 @@
   </div>
   <footer class="explore-footer"><a href="destinations.html">← Back to destinations</a><span>Place summaries are guides, not live access updates.</span></footer>
 </main>
-<script src="destinations-data.js"></script><script src="place.js"></script>
+<script src="theme.js"></script><script src="destinations-data.js"></script><script src="place.js"></script>
 </body></html>
